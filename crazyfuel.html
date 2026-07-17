@@ -8,14 +8,13 @@
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@600,700,800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <style>
-/* ═══ TOKENS ════════════════════════════════════════════ */
 :root,[data-theme="light"]{
   --ts:.85rem;--tb:1rem;--tl:1.15rem;--txl:clamp(1.5rem,3vw,2rem);
   --s1:.25rem;--s2:.5rem;--s3:.75rem;--s4:1rem;--s5:1.25rem;--s6:1.5rem;--s8:2rem;
   --bg:#f0efe9;--sur:#fafaf7;--sur2:#f3f1ea;--sur3:#eae8df;
   --bor:rgba(30,28,20,.1);--div:rgba(30,28,20,.07);
   --tx0:#1c1b15;--tx1:#5e5c52;--tx2:#9c9a90;--txi:#fff;
-  --pri:#0a7880;--prih:#075e66;--pris:rgba(10,120,128,.12);--priBright:#0fb5c2;
+  --pri:#0a7880;--prih:#075e66;--pris:rgba(10,120,128,.12);
   --acc:#e8620a;--accS:rgba(232,98,10,.12);
   --ok:#2e7d1a;--warn:#a05a00;--err:#980f2a;
   --fuel-g:#2563eb;--fuel-95:#16a34a;--fuel-e10:#059669;
@@ -33,15 +32,13 @@
   --bg:#0e0f0d;--sur:#171916;--sur2:#1e201c;--sur3:#262825;
   --bor:rgba(255,255,255,.09);--div:rgba(255,255,255,.06);
   --tx0:#e9e6da;--tx1:#908d82;--tx2:#5a5750;--txi:#0e0f0d;
-  --pri:#4bbac4;--prih:#6dd0d8;--pris:rgba(75,186,196,.13);--priBright:#79dce6;
+  --pri:#4bbac4;--prih:#6dd0d8;--pris:rgba(75,186,196,.13);
   --acc:#f07830;--accS:rgba(240,120,48,.13);
   --ok:#5ab83e;--warn:#e0a840;--err:#e84060;
   --sh1:0 2px 12px rgba(0,0,0,.28),0 1px 4px rgba(0,0,0,.2);
   --sh2:0 20px 60px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.3);
   --sh3:0 0 0 3px rgba(75,186,196,.22);
 }
-
-/* ═══ RESET ═════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:none;scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg);color:var(--tx0);font-size:var(--tb);line-height:1.56;min-height:100dvh;overflow-x:hidden;transition:background .35s var(--ease),color .35s var(--ease)}
@@ -51,178 +48,86 @@ a{text-decoration:none;color:inherit}
 img,svg{display:block;max-width:100%}
 ::selection{background:var(--pris)}
 :focus-visible{outline:2px solid var(--pri);outline-offset:3px;border-radius:4px}
-
-/* ═══ SCROLLBAR ════════════════════════════════════════ */
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bor);border-radius:99px}
-
-/* ═══ LAYOUT ════════════════════════════════════════════ */
 .shell{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100dvh}
-
-/* ═══ SIDEBAR ═══════════════════════════════════════════ */
-.sidebar{
-  background:var(--sur);border-right:1px solid var(--bor);
-  padding:var(--s5);display:flex;flex-direction:column;gap:var(--s5);
-  position:sticky;top:0;height:100dvh;overflow-y:auto;
-}
-
-/* Brand */
+.sidebar{background:var(--sur);border-right:1px solid var(--bor);padding:var(--s5);display:flex;flex-direction:column;gap:var(--s5);position:sticky;top:0;height:100dvh;overflow-y:auto;}
 .brand{display:flex;align-items:center;gap:12px;padding:var(--s2) 0}
-.logo{
-  width:46px;height:46px;flex-shrink:0;border-radius:14px;
-  background:linear-gradient(140deg,var(--pri),var(--acc));
-  display:grid;place-items:center;
-  box-shadow:0 6px 20px rgba(10,120,128,.35);
-}
+.logo{width:46px;height:46px;flex-shrink:0;border-radius:14px;background:linear-gradient(140deg,var(--pri),var(--acc));display:grid;place-items:center;box-shadow:0 6px 20px rgba(10,120,128,.35)}
 .logo svg{width:26px;height:26px;color:#fff}
 .brand-name{font-family:var(--fdis);font-size:1.28rem;font-weight:800;line-height:1;letter-spacing:-.02em}
 .brand-tag{font-size:.68rem;color:var(--tx2);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
-
-/* Nav */
 .nav{display:flex;flex-direction:column;gap:2px}
-.nav-btn{
-  display:flex;align-items:center;gap:10px;
-  padding:.7rem .85rem;border-radius:var(--r4);
-  color:var(--tx1);font-size:var(--ts);font-weight:500;
-  transition:background .18s var(--ease),color .18s var(--ease),transform .15s var(--ease);
-  position:relative;text-align:left;width:100%;
-}
-.nav-ico{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--sur2);flex-shrink:0;font-size:1rem;transition:background .18s var(--ease),transform .2s var(--ease)}
+.nav-btn{display:flex;align-items:center;gap:10px;padding:.7rem .85rem;border-radius:var(--r4);color:var(--tx1);font-size:var(--ts);font-weight:500;transition:background .18s var(--ease),color .18s var(--ease);position:relative;text-align:left;width:100%;}
+.nav-ico{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--sur2);flex-shrink:0;font-size:1rem;transition:background .18s,transform .2s var(--ease)}
 .nav-btn:hover{color:var(--tx0);background:var(--sur2)}
 .nav-btn:hover .nav-ico{transform:scale(1.08)}
 .nav-btn.active{color:var(--pri);background:var(--pris);font-weight:700}
 .nav-btn.active .nav-ico{background:var(--pris)}
 .nav-btn.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--pri);border-radius:0 3px 3px 0}
-
-/* Fuel pref */
-.fuel-pref{
-  padding:var(--s4);border-radius:var(--r5);
-  background:linear-gradient(135deg,var(--pris),transparent);
-  border:1px solid color-mix(in srgb,var(--pri) 22%,transparent);
-}
+.fuel-pref{padding:var(--s4);border-radius:var(--r5);background:linear-gradient(135deg,var(--pris),transparent);border:1px solid color-mix(in srgb,var(--pri) 22%,transparent)}
 .fuel-pref .lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tx1);margin-bottom:.4rem}
 .fuel-pref .val{font-family:var(--fdis);font-size:1.1rem;font-weight:800;color:var(--pri)}
 .fuel-pref .hint{font-size:.68rem;color:var(--tx1);margin-top:.35rem;line-height:1.4}
-
-/* iOS Toggle */
+.api-status{padding:.55rem var(--s3);border-radius:var(--r4);font-size:.7rem;font-weight:600;border:1px solid var(--bor);display:flex;align-items:center;gap:6px;background:var(--sur2)}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-live{background:var(--ok);animation:pulse 2s ease-in-out infinite}
+.dot-demo{background:var(--warn)}
+.dot-load{background:var(--tx2);animation:pulse .8s ease-in-out infinite}
 .theme-row{display:flex;align-items:center;justify-content:space-between;padding:var(--s3) var(--s4);background:var(--sur2);border-radius:var(--r4);border:1px solid var(--bor)}
 .theme-lbl{font-size:var(--ts);font-weight:500;color:var(--tx1);display:flex;align-items:center;gap:8px}
 .ios-sw{position:relative;width:52px;height:30px;cursor:pointer;flex-shrink:0}
 .ios-sw input{position:absolute;opacity:0;width:0;height:0}
-.ios-track{
-  position:absolute;inset:0;border-radius:15px;
-  background:color-mix(in srgb,var(--tx2) 40%,var(--bor));
-  transition:background .3s var(--ease);
-}
+.ios-track{position:absolute;inset:0;border-radius:15px;background:color-mix(in srgb,var(--tx2) 40%,var(--bor));transition:background .3s var(--ease)}
 .ios-sw input:checked+.ios-track{background:var(--pri)}
-.ios-knob{
-  position:absolute;top:3px;left:3px;
-  width:24px;height:24px;border-radius:50%;
-  background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25);
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-  display:grid;place-items:center;
-}
+.ios-knob{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25);transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:grid;place-items:center}
 .ios-sw input:checked~.ios-knob{transform:translateX(22px)}
 .ico-sun,.ico-moon{width:13px;height:13px;position:absolute;transition:opacity .2s,transform .2s}
-.ico-sun{opacity:1;color:#f59e0b;transform:rotate(0)}
+.ico-sun{opacity:1;color:#f59e0b}
 .ico-moon{opacity:0;color:#6366f1;transform:rotate(-30deg)}
 .ios-sw input:checked~.ios-knob .ico-sun{opacity:0;transform:rotate(30deg)}
 .ios-sw input:checked~.ios-knob .ico-moon{opacity:1;transform:rotate(0)}
-
-/* ═══ MAIN ══════════════════════════════════════════════ */
 .main{padding:var(--s6);display:flex;flex-direction:column;gap:var(--s6);overflow-y:auto;min-height:100dvh}
-
-/* ═══ PAGE HEADER ════════════════════════════════════════ */
 .page-header{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s4);flex-wrap:wrap}
 .page-title{font-family:var(--fdis);font-size:var(--txl);font-weight:800;line-height:1.1;letter-spacing:-.025em}
 .page-title .hl{color:var(--pri)}
 .page-sub{font-size:var(--ts);color:var(--tx1);margin-top:.45rem;max-width:64ch;line-height:1.6}
 .acts{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center}
-
-/* ═══ BUTTONS ════════════════════════════════════════════ */
-.btn{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:.65rem 1.15rem;border-radius:var(--rf);
-  font-size:var(--ts);font-weight:600;
-  border:1.5px solid var(--bor);background:var(--sur);color:var(--tx0);
-  transition:transform .15s var(--ease),box-shadow .15s var(--ease),filter .15s;
-  white-space:nowrap;
-}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:.65rem 1.15rem;border-radius:var(--rf);font-size:var(--ts);font-weight:600;border:1.5px solid var(--bor);background:var(--sur);color:var(--tx0);transition:transform .15s var(--ease),box-shadow .15s var(--ease),filter .15s;white-space:nowrap}
 .btn:hover{transform:translateY(-2px);box-shadow:var(--sh1)}
 .btn:active{transform:translateY(0)}
-.btn-pri{
-  background:linear-gradient(135deg,var(--pri),color-mix(in srgb,var(--pri) 75%,var(--acc)));
-  border-color:transparent;color:#fff;
-  box-shadow:0 4px 18px rgba(10,120,128,.38);
-}
+.btn-pri{background:linear-gradient(135deg,var(--pri),color-mix(in srgb,var(--pri) 75%,var(--acc)));border-color:transparent;color:#fff;box-shadow:0 4px 18px rgba(10,120,128,.38)}
 .btn-pri:hover{filter:brightness(1.08);box-shadow:0 8px 26px rgba(10,120,128,.45)}
-.btn-acc{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 70%,#c00));border-color:transparent;color:#fff;box-shadow:0 4px 18px rgba(232,98,10,.35)}
-.btn-acc:hover{filter:brightness(1.08)}
+.btn-acc{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 70%,#c00));border-color:transparent;color:#fff}
 .btn-sm{padding:.45rem .85rem;font-size:.78rem}
 .btn-err{border-color:color-mix(in srgb,var(--err) 30%,var(--bor));color:var(--err)}
 .btn-err:hover{background:color-mix(in srgb,var(--err) 8%,var(--sur))}
-
-/* ═══ KPIs ═══════════════════════════════════════════════ */
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4)}
-.kpi{
-  background:var(--sur);border:1px solid var(--bor);border-radius:var(--r5);
-  padding:var(--s5);box-shadow:var(--sh1);
-  display:grid;gap:.2rem;
-  transition:transform .2s var(--ease),box-shadow .2s var(--ease);
-  cursor:default;
-}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s4)}
+.kpi{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r5);padding:var(--s5);box-shadow:var(--sh1);display:grid;gap:.2rem;transition:transform .2s var(--ease),box-shadow .2s;cursor:default}
 .kpi:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
 .kpi-icon{font-size:1.4rem;margin-bottom:.2rem}
 .kpi-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tx2);font-weight:600}
-.kpi-val{
-  font-family:var(--fdis);font-size:2rem;font-weight:800;line-height:1;color:var(--tx0);
-  animation:countUp .5s var(--ease) both;
-}
+.kpi-val{font-family:var(--fdis);font-size:2rem;font-weight:800;line-height:1;color:var(--tx0)}
 .kpi-sub{font-size:.72rem;color:var(--tx1)}
-
-/* ═══ CARDS ══════════════════════════════════════════════ */
-.card{
-  background:var(--sur);border:1px solid var(--bor);
-  border-radius:var(--r6);box-shadow:var(--sh1);
-  padding:var(--s5);
-  transition:box-shadow .2s var(--ease);
-}
+.card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r6);box-shadow:var(--sh1);padding:var(--s5);transition:box-shadow .2s}
 .card-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);margin-bottom:var(--s4)}
 .card-title{font-family:var(--fdis);font-size:var(--tl);font-weight:800;letter-spacing:-.02em}
 .card-hint{font-size:.7rem;color:var(--tx2)}
-
-/* ═══ MAP ════════════════════════════════════════════════ */
 .map-wrap{display:grid;grid-template-columns:1fr 340px;gap:var(--s5);align-items:start}
 #map{height:60vh;border-radius:var(--r5);overflow:hidden;z-index:0;border:1px solid var(--bor)}
 .filters{display:flex;gap:var(--s3);flex-wrap:wrap;margin-bottom:var(--s4)}
 .fld{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:120px}
 .fld label{font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tx2);font-weight:600}
-.fld input,.fld select{
-  background:var(--sur2);border:1.5px solid var(--bor);
-  padding:.6rem .85rem;border-radius:var(--r3);
-  color:var(--tx0);font-size:var(--ts);
-  transition:border-color .18s,box-shadow .18s;
-}
-.fld input:focus,.fld select:focus{border-color:var(--pri);outline:none;box-shadow:var(--sh3)}
-
-/* ═══ RANKINGS ═══════════════════════════════════════════ */
+.fld input,.fld select,.fld textarea{background:var(--sur2);border:1.5px solid var(--bor);padding:.6rem .85rem;border-radius:var(--r3);color:var(--tx0);font-size:var(--ts);transition:border-color .18s,box-shadow .18s}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--pri);outline:none;box-shadow:var(--sh3)}
+.fld textarea{min-height:88px;resize:vertical;line-height:1.5}
 .rank-list{display:flex;flex-direction:column;gap:var(--s2)}
-.rank-item{
-  display:flex;align-items:center;gap:var(--s3);
-  padding:.7rem var(--s3);background:var(--sur2);
-  border-radius:var(--r4);border:1px solid var(--bor);
-  transition:transform .18s var(--ease),box-shadow .18s;
-  animation:slideIn .3s var(--ease) both;
-}
+.rank-item{display:flex;align-items:center;gap:var(--s3);padding:.7rem var(--s3);background:var(--sur2);border-radius:var(--r4);border:1px solid var(--bor);transition:transform .18s var(--ease),box-shadow .18s;animation:slideIn .3s var(--ease) both}
 .rank-item:nth-child(2){animation-delay:.06s}
 .rank-item:nth-child(3){animation-delay:.12s}
 .rank-item:hover{transform:translateX(4px);box-shadow:var(--sh1)}
-.rank-num{
-  width:28px;height:28px;border-radius:var(--rf);
-  font-family:var(--fdis);font-size:.82rem;font-weight:800;
-  display:grid;place-items:center;flex-shrink:0;color:#fff;
-}
+.rank-num{width:28px;height:28px;border-radius:var(--rf);font-family:var(--fdis);font-size:.82rem;font-weight:800;display:grid;place-items:center;flex-shrink:0;color:#fff}
 .rank-num.r1{background:linear-gradient(135deg,#f59e0b,#d97706)}
 .rank-num.r2{background:linear-gradient(135deg,#64748b,#94a3b8)}
 .rank-num.r3{background:linear-gradient(135deg,#92400e,#d97706)}
@@ -230,8 +135,6 @@ img,svg{display:block;max-width:100%}
 .rank-name{font-weight:700;font-size:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rank-city{font-size:.68rem;color:var(--tx2);margin-top:1px}
 .rank-price{font-family:var(--fdis);font-size:1.05rem;font-weight:800;color:var(--pri);white-space:nowrap}
-
-/* ═══ STATION DETAIL ══════════════════════════════════════ */
 .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
 .price-chip{padding:.65rem .8rem;background:var(--sur2);border-radius:var(--r3);border:1px solid var(--bor);transition:transform .15s}
 .price-chip:hover{transform:scale(1.02)}
@@ -239,8 +142,6 @@ img,svg{display:block;max-width:100%}
 .price-chip .f-val{font-family:var(--fdis);font-size:1rem;font-weight:800}
 .price-chip.best{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 9%,var(--sur2))}
 .price-chip.worst{border-color:var(--err);background:color-mix(in srgb,var(--err) 6%,var(--sur2))}
-
-/* ═══ FUEL CHIPS ══════════════════════════════════════════ */
 .fuel-chip{display:inline-flex;align-items:center;padding:.3rem .75rem;border-radius:var(--rf);font-size:.75rem;font-weight:700;border:1.5px solid;letter-spacing:.02em}
 .fc-g{background:rgba(37,99,235,.1);color:#2563eb;border-color:rgba(37,99,235,.25)}
 .fc-95{background:rgba(22,163,74,.1);color:#16a34a;border-color:rgba(22,163,74,.25)}
@@ -248,138 +149,68 @@ img,svg{display:block;max-width:100%}
 .fc-98{background:rgba(124,58,237,.1);color:#7c3aed;border-color:rgba(124,58,237,.25)}
 .fc-gpl{background:rgba(8,145,178,.1);color:#0891b2;border-color:rgba(8,145,178,.25)}
 .fc-e85{background:rgba(202,138,4,.1);color:#ca8a04;border-color:rgba(202,138,4,.25)}
-
-/* ═══ BADGES ══════════════════════════════════════════════ */
 .badge{display:inline-flex;align-items:center;padding:.28rem .7rem;border-radius:var(--rf);font-size:.7rem;font-weight:700;letter-spacing:.02em}
 .bg-pri{background:var(--pris);color:var(--pri)}
 .bg-acc{background:var(--accS);color:var(--acc)}
 .bg-ok{background:rgba(46,125,26,.12);color:var(--ok)}
 .bg-warn{background:rgba(160,90,0,.12);color:var(--warn)}
 .bg-err{background:rgba(152,15,42,.12);color:var(--err)}
-
-/* ═══ COMMENTS ════════════════════════════════════════════ */
 .comment-list{display:flex;flex-direction:column;gap:var(--s3)}
-.comment{
-  padding:var(--s4);background:var(--sur2);
-  border-radius:var(--r4);border:1px solid var(--bor);
-  animation:slideIn .25s var(--ease) both;
-}
+.comment{padding:var(--s4);background:var(--sur2);border-radius:var(--r4);border:1px solid var(--bor);animation:slideIn .25s var(--ease) both}
 .comment-top{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s2);margin-bottom:.4rem}
 .comment-author{font-weight:700;font-size:var(--ts)}
-.comment-station{font-size:.7rem;color:var(--tx2);background:var(--pris);color:var(--pri);padding:.2rem .55rem;border-radius:var(--rf);font-weight:600}
-.comment-body{font-size:var(--ts);color:var(--tx0);line-height:1.55}
-
-/* ═══ ADMIN ═══════════════════════════════════════════════ */
-.admin-item{
-  padding:var(--s4);background:var(--sur2);
-  border-radius:var(--r5);border:1px solid var(--bor);
-  animation:slideIn .25s var(--ease) both;
-}
+.comment-station{font-size:.7rem;background:var(--pris);color:var(--pri);padding:.2rem .55rem;border-radius:var(--rf);font-weight:600}
+.comment-body{font-size:var(--ts);line-height:1.55}
+.admin-item{padding:var(--s4);background:var(--sur2);border-radius:var(--r5);border:1px solid var(--bor);animation:slideIn .25s var(--ease) both}
 .admin-btns{display:flex;gap:var(--s2);margin-top:var(--s3);flex-wrap:wrap}
-.log-item{
-  display:flex;gap:var(--s3);align-items:center;
-  padding:.55rem .8rem;background:var(--sur2);
-  border-radius:var(--r3);border:1px solid var(--bor);
-}
+.log-item{display:flex;gap:var(--s3);align-items:center;padding:.55rem .8rem;background:var(--sur2);border-radius:var(--r3);border:1px solid var(--bor)}
 .log-dot{width:7px;height:7px;border-radius:50%;background:var(--pri);flex-shrink:0}
 .log-msg{font-size:var(--ts);flex:1;line-height:1.4}
 .log-time{font-size:.65rem;color:var(--tx2);white-space:nowrap}
-
-/* ═══ FORMS ═══════════════════════════════════════════════ */
 .form-grid{display:flex;flex-direction:column;gap:var(--s4)}
-.fld textarea{
-  min-height:88px;resize:vertical;
-  background:var(--sur2);border:1.5px solid var(--bor);
-  padding:.6rem .85rem;border-radius:var(--r3);
-  color:var(--tx0);font-size:var(--ts);line-height:1.5;
-  transition:border-color .18s,box-shadow .18s;
-}
-.fld textarea:focus{border-color:var(--pri);outline:none;box-shadow:var(--sh3)}
-
-/* ═══ PROFILE ═════════════════════════════════════════════ */
 .profile-card{display:flex;flex-direction:column;gap:0}
 .profile-row{display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--div)}
 .profile-row:last-child{border-bottom:none}
 .profile-key{font-size:var(--ts);color:var(--tx1)}
 .profile-val{font-weight:700;font-size:var(--ts)}
-
-/* ═══ TOAST ═══════════════════════════════════════════════ */
-.toast{
-  position:fixed;bottom:var(--s6);left:50%;transform:translateX(-50%) translateY(12px);
-  background:var(--tx0);color:var(--txi);
-  padding:.7rem 1.4rem;border-radius:var(--rf);
-  font-size:var(--ts);font-weight:600;
-  box-shadow:var(--sh2);opacity:0;
-  transition:opacity .25s var(--ease),transform .3s var(--ease);
-  pointer-events:none;z-index:9999;white-space:nowrap;
-}
+.toast{position:fixed;bottom:var(--s6);left:50%;transform:translateX(-50%) translateY(12px);background:var(--tx0);color:var(--txi);padding:.7rem 1.4rem;border-radius:var(--rf);font-size:var(--ts);font-weight:600;box-shadow:var(--sh2);opacity:0;transition:opacity .25s var(--ease),transform .3s var(--ease);pointer-events:none;z-index:9999;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ═══ VIEWS ═══════════════════════════════════════════════ */
 .view{display:none;flex-direction:column;gap:var(--s6);animation:fadeIn .22s var(--ease)}
 .view.active{display:flex}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);align-items:start}
-
-/* ═══ MOBILE NAV ══════════════════════════════════════════ */
-.mob-nav{
-  display:none;position:fixed;bottom:0;left:0;right:0;
-  background:color-mix(in srgb,var(--sur) 90%,transparent);
-  border-top:1px solid var(--bor);
-  padding:var(--s2) var(--s4) max(var(--s3),env(safe-area-inset-bottom));
-  z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  grid-template-columns:repeat(4,1fr);gap:4px;
-}
-.mob-btn{
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:.45rem .25rem;border-radius:var(--r3);color:var(--tx2);
-  font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
-  transition:color .18s,background .18s,transform .18s var(--ease);width:100%;
-}
+/* Skeleton */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skel{border-radius:var(--r3);background:linear-gradient(90deg,var(--sur2) 25%,var(--sur3) 50%,var(--sur2) 75%);background-size:400px 100%;animation:shimmer 1.4s ease-in-out infinite;height:1em}
+/* Loading overlay */
+.load-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s4);padding:var(--s8)}
+.spinner{width:36px;height:36px;border:3px solid var(--bor);border-top-color:var(--pri);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* API banner */
+.api-banner{padding:var(--s3) var(--s4);border-radius:var(--r4);font-size:.78rem;display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.api-banner.live{background:color-mix(in srgb,var(--ok) 8%,var(--sur));border:1px solid color-mix(in srgb,var(--ok) 25%,var(--bor))}
+.api-banner.demo{background:color-mix(in srgb,var(--warn) 8%,var(--sur));border:1px solid color-mix(in srgb,var(--warn) 25%,var(--bor))}
+.api-banner.error{background:color-mix(in srgb,var(--err) 8%,var(--sur));border:1px solid color-mix(in srgb,var(--err) 25%,var(--bor))}
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--sur) 90%,transparent);border-top:1px solid var(--bor);padding:var(--s2) var(--s4) max(var(--s3),env(safe-area-inset-bottom));z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);grid-template-columns:repeat(4,1fr);gap:4px}
+.mob-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:.45rem .25rem;border-radius:var(--r3);color:var(--tx2);font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;transition:color .18s,background .18s,transform .18s var(--ease);width:100%}
 .mob-btn .mico{font-size:1.25rem;line-height:1;transition:transform .2s var(--ease)}
 .mob-btn.active{color:var(--pri)}
 .mob-btn.active .mico{transform:scale(1.18)}
 .mob-btn:active{background:var(--sur2)}
-
-/* ═══ EMPTY STATE ═════════════════════════════════════════ */
-.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:var(--s10) var(--s6);color:var(--tx1)}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:var(--s8) var(--s6);color:var(--tx1)}
 .empty-ico{font-size:2.5rem;margin-bottom:var(--s3)}
 .empty h3{color:var(--tx0);margin-bottom:.3rem;font-family:var(--fdis)}
 .empty p{font-size:var(--ts);max-width:36ch}
-
-/* ═══ ANIMATIONS ══════════════════════════════════════════ */
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
-@keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s ease-in-out infinite;margin-right:5px;vertical-align:middle}
-
-/* ═══ RESPONSIVE ══════════════════════════════════════════ */
-@media(max-width:1100px){
-  .shell{grid-template-columns:1fr}
-  .sidebar{display:none}
-  .mob-nav{display:grid}
-  .main{padding:var(--s4) var(--s4) calc(76px + env(safe-area-inset-bottom))}
-  .map-wrap{grid-template-columns:1fr}
-  .two-col{grid-template-columns:1fr}
-  #map{height:calc(55vw + 40px);min-height:260px;max-height:420px}
-  .kpis{gap:var(--s3)}
-}
-@media(max-width:680px){
-  .kpis{grid-template-columns:1fr 1fr}
-  .kpis .kpi:last-child{grid-column:span 2}
-  .filters{flex-direction:column}
-  .page-title{font-size:1.4rem}
-  .two-col{grid-template-columns:1fr}
-  .map-wrap{gap:var(--s4)}
-  .acts .btn{flex:1;justify-content:center}
-}
+@media(max-width:1100px){.shell{grid-template-columns:1fr}.sidebar{display:none}.mob-nav{display:grid}.main{padding:var(--s4) var(--s4) calc(76px + env(safe-area-inset-bottom))}.map-wrap{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}#map{height:calc(55vw + 40px);min-height:260px;max-height:420px}.kpis{gap:var(--s3)}}
+@media(max-width:680px){.kpis{grid-template-columns:1fr 1fr}.kpis .kpi:last-child{grid-column:span 2}.filters{flex-direction:column}.page-title{font-size:1.4rem}.acts .btn{flex:1;justify-content:center}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 <div class="shell">
-
-<!-- ══ SIDEBAR ══════════════════════════════════════════ -->
 <aside class="sidebar">
   <div class="brand">
     <div class="logo">
@@ -390,30 +221,22 @@ img,svg{display:block;max-width:100%}
         <path d="M18 13c-1.5 1-2 3-1 5 .5-1 1.5-1.5 2-3 .4-1-.1-1.8-1-2Z" fill="currentColor" stroke="none"/>
       </svg>
     </div>
-    <div>
-      <div class="brand-name">CrazyFuel</div>
-      <div class="brand-tag">France · Prix pompe</div>
-    </div>
+    <div><div class="brand-name">CrazyFuel</div><div class="brand-tag">France · Prix pompe</div></div>
   </div>
-
   <nav class="nav">
     <button class="nav-btn active" data-view="mapView"><span class="nav-ico">🗺️</span><span>Carte &amp; tendances</span></button>
     <button class="nav-btn" data-view="authView"><span class="nav-ico">👤</span><span>Mon compte</span></button>
     <button class="nav-btn" data-view="communityView"><span class="nav-ico">💬</span><span>Communauté</span></button>
     <button class="nav-btn" data-view="adminView"><span class="nav-ico">🛡️</span><span>Admin</span></button>
   </nav>
-
   <div class="fuel-pref">
     <div class="lbl">Carburant préféré</div>
     <div class="val" id="sidebarFuel">SP95-E10</div>
     <div class="hint">Pilote le Top 3 national &amp; proximité</div>
   </div>
-
+  <div class="api-status" id="apiStatus"><div class="dot dot-load" id="statusDot"></div><span id="statusText">Chargement…</span></div>
   <div class="theme-row">
-    <span class="theme-lbl">
-      <span id="themeEmoji">☀️</span>
-      <span id="themeText">Mode clair</span>
-    </span>
+    <span class="theme-lbl"><span id="themeEmoji">☀️</span><span id="themeText">Mode clair</span></span>
     <label class="ios-sw" aria-label="Basculer thème">
       <input type="checkbox" id="themeChk"/>
       <div class="ios-track"></div>
@@ -424,74 +247,49 @@ img,svg{display:block;max-width:100%}
     </label>
   </div>
 </aside>
-
-<!-- ══ MAIN ════════════════════════════════════════════════ -->
 <main class="main">
-
-  <!-- ── VUE CARTE ──────────────────────────────────────── -->
+  <!-- VUE CARTE -->
   <section id="mapView" class="view active">
     <div class="page-header">
       <div>
         <h1 class="page-title">Prix à la pompe <span class="hl">en direct</span></h1>
-        <p class="page-sub"><span class="live-dot"></span>Consultez, comparez et corrigez les prix sur toute la France. Les contributions sont validées avant publication.</p>
+        <p class="page-sub"><span class="live-dot"></span>Données officielles du Ministère de l'Économie, mises à jour toutes les 10 min. Filtrez, comparez, corrigez.</p>
       </div>
       <div class="acts">
         <button class="btn btn-pri" id="locateBtn">📍 Ma position</button>
-        <button class="btn" id="seedBtn">🔄 Démo</button>
+        <button class="btn btn-acc" id="refreshBtn">🔄 Actualiser API</button>
+        <button class="btn" id="seedBtn">🎭 Démo</button>
       </div>
     </div>
-
+    <div id="apiBanner" class="api-banner demo">⏳ Chargement des données…</div>
     <div class="kpis">
-      <div class="kpi"><div class="kpi-icon">⛽</div><div class="kpi-lbl">Stations</div><div class="kpi-val" id="stationCount">0</div><div class="kpi-sub">en France</div></div>
+      <div class="kpi"><div class="kpi-icon">⛽</div><div class="kpi-lbl">Stations</div><div class="kpi-val" id="stationCount">0</div><div class="kpi-sub" id="dataSourceLabel">chargement…</div></div>
+      <div class="kpi"><div class="kpi-icon">📡</div><div class="kpi-lbl">Dernière MAJ</div><div class="kpi-val" id="lastUpdateVal" style="font-size:1rem">—</div><div class="kpi-sub">API officielle</div></div>
       <div class="kpi"><div class="kpi-icon">⏳</div><div class="kpi-lbl">En attente</div><div class="kpi-val" id="pendingCount">0</div><div class="kpi-sub">contributions</div></div>
       <div class="kpi"><div class="kpi-icon">💬</div><div class="kpi-lbl">Commentaires</div><div class="kpi-val" id="commentCount">0</div><div class="kpi-sub">validés</div></div>
     </div>
-
     <div class="map-wrap">
       <div class="card" style="padding:var(--s4)">
         <div class="filters">
           <div class="fld"><label>Carburant</label><select id="fuelFilter"></select></div>
           <div class="fld"><label>Recherche</label><input id="searchFilter" placeholder="Paris, Total…"/></div>
-          <div class="fld"><label>Prix max €/L</label><input id="maxPriceFilter" type="number" step="0.001" placeholder="2.000"/></div>
+          <div class="fld"><label>Prix max €/L</label><input id="maxPriceFilter" type="number" step="0.001" placeholder="2.200"/></div>
           <div class="fld"><label>Trier</label><select id="sortFilter"><option value="price">Prix ↑</option><option value="distance">Distance</option><option value="name">Nom A→Z</option></select></div>
         </div>
         <div id="map"></div>
       </div>
-
       <div style="display:flex;flex-direction:column;gap:var(--s4)">
-        <div class="card">
-          <div class="card-head">
-            <span class="card-title">🏆 Top 3 France</span>
-            <span class="badge bg-pri" id="nFuelBadge">SP95-E10</span>
-          </div>
-          <div class="rank-list" id="nationalTop"></div>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <span class="card-title">📍 Top 3 près de vous</span>
-            <span class="badge bg-acc">Votre position</span>
-          </div>
-          <div class="rank-list" id="nearbyTop"></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">Détail station</span></div>
-          <div id="stationDetails"><div class="empty" style="padding:var(--s6) 0"><div class="empty-ico">🗺️</div><p>Cliquez sur un marqueur pour voir les prix.</p></div></div>
-        </div>
+        <div class="card"><div class="card-head"><span class="card-title">🏆 Top 3 France</span><span class="badge bg-pri" id="nFuelBadge">SP95-E10</span></div><div class="rank-list" id="nationalTop"></div></div>
+        <div class="card"><div class="card-head"><span class="card-title">📍 Top 3 près de vous</span><span class="badge bg-acc">GPS</span></div><div class="rank-list" id="nearbyTop"></div></div>
+        <div class="card"><div class="card-head"><span class="card-title">Détail station</span></div><div id="stationDetails"><div class="empty" style="padding:var(--s5) 0"><div class="empty-ico">🗺️</div><p>Cliquez sur un marqueur pour voir les prix.</p></div></div></div>
       </div>
     </div>
   </section>
-
-  <!-- ── VUE COMPTE ─────────────────────────────────────── -->
+  <!-- VUE COMPTE -->
   <section id="authView" class="view">
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Mon <span class="hl">compte</span></h1>
-        <p class="page-sub">Créez votre profil pour commenter les stations et proposer des corrections de prix.</p>
-      </div>
-    </div>
+    <div class="page-header"><div><h1 class="page-title">Mon <span class="hl">compte</span></h1><p class="page-sub">Créez votre profil pour commenter et proposer des corrections.</p></div></div>
     <div class="two-col">
-      <div class="card">
-        <div class="card-head"><span class="card-title">Créer un compte</span><span class="badge bg-pri">Démo</span></div>
+      <div class="card"><div class="card-head"><span class="card-title">Créer un compte</span><span class="badge bg-pri">Démo front</span></div>
         <form id="registerForm" class="form-grid">
           <div class="fld"><label>Prénom</label><input name="name" required placeholder="Camille"/></div>
           <div class="fld"><label>Email</label><input name="email" type="email" required placeholder="camille@email.fr"/></div>
@@ -500,32 +298,21 @@ img,svg{display:block;max-width:100%}
           <button class="btn btn-pri" type="submit">Créer mon compte →</button>
         </form>
       </div>
-      <div class="card">
-        <div class="card-head"><span class="card-title">Session active</span></div>
-        <div id="sessionCard" class="profile-card"></div>
-      </div>
+      <div class="card"><div class="card-head"><span class="card-title">Session active</span></div><div id="sessionCard" class="profile-card"></div></div>
     </div>
   </section>
-
-  <!-- ── VUE COMMUNAUTÉ ─────────────────────────────────── -->
+  <!-- VUE COMMUNAUTÉ -->
   <section id="communityView" class="view">
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Comm<span class="hl">unauté</span></h1>
-        <p class="page-sub">Commentez une station ou signalez un prix incorrect. Chaque contribution passe en modération avant d'être publiée.</p>
-      </div>
-    </div>
+    <div class="page-header"><div><h1 class="page-title">Comm<span class="hl">unauté</span></h1><p class="page-sub">Commentez ou signalez un prix incorrect. Chaque contribution passe en modération.</p></div></div>
     <div class="two-col">
-      <div class="card">
-        <div class="card-head"><span class="card-title">💬 Commenter</span><span class="badge bg-warn">Modéré</span></div>
+      <div class="card"><div class="card-head"><span class="card-title">💬 Commenter</span><span class="badge bg-warn">Modéré</span></div>
         <form id="commentForm" class="form-grid">
           <div class="fld"><label>Station</label><select id="commentStation"></select></div>
-          <div class="fld"><label>Votre commentaire</label><textarea id="commentText" placeholder="Prix corrects ce matin, pompe rapide…"></textarea></div>
+          <div class="fld"><label>Commentaire</label><textarea id="commentText" placeholder="Prix corrects ce matin…"></textarea></div>
           <button class="btn btn-pri" type="submit">Envoyer en modération →</button>
         </form>
       </div>
-      <div class="card">
-        <div class="card-head"><span class="card-title">✏️ Corriger un prix</span><span class="badge bg-warn">Modéré</span></div>
+      <div class="card"><div class="card-head"><span class="card-title">✏️ Corriger un prix</span><span class="badge bg-warn">Modéré</span></div>
         <form id="priceProposalForm" class="form-grid">
           <div class="fld"><label>Station</label><select id="proposalStation"></select></div>
           <div class="fld"><label>Carburant</label><select id="proposalFuel"></select></div>
@@ -535,55 +322,61 @@ img,svg{display:block;max-width:100%}
         </form>
       </div>
     </div>
-    <div class="card">
-      <div class="card-head"><span class="card-title">Commentaires validés</span><span class="card-hint" id="commCount2">—</span></div>
-      <div class="comment-list" id="approvedComments"></div>
-    </div>
+    <div class="card"><div class="card-head"><span class="card-title">Commentaires validés</span><span class="card-hint" id="commCount2">—</span></div><div class="comment-list" id="approvedComments"></div></div>
   </section>
-
-  <!-- ── VUE ADMIN ──────────────────────────────────────── -->
+  <!-- VUE ADMIN -->
   <section id="adminView" class="view">
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Dashboard <span class="hl">Admin</span></h1>
-        <p class="page-sub">Modérez les contributions de la communauté. Chaque approbation met la carte à jour instantanément.</p>
-      </div>
-    </div>
+    <div class="page-header"><div><h1 class="page-title">Dashboard <span class="hl">Admin</span></h1><p class="page-sub">Modérez les contributions. Chaque approbation met la carte à jour instantanément.</p></div></div>
     <div class="two-col">
-      <div class="card">
-        <div class="card-head"><span class="card-title">File de modération</span><span class="badge bg-warn" id="queueCount">0</span></div>
-        <div id="adminQueue" style="display:flex;flex-direction:column;gap:var(--s3)"></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><span class="card-title">Journal d'activité</span></div>
-        <div id="activityLog" style="display:flex;flex-direction:column;gap:var(--s2)"></div>
-      </div>
+      <div class="card"><div class="card-head"><span class="card-title">File de modération</span><span class="badge bg-warn" id="queueCount">0</span></div><div id="adminQueue" style="display:flex;flex-direction:column;gap:var(--s3)"></div></div>
+      <div class="card"><div class="card-head"><span class="card-title">Journal d'activité</span></div><div id="activityLog" style="display:flex;flex-direction:column;gap:var(--s2)"></div></div>
     </div>
   </section>
-
-  <div style="font-size:.68rem;color:var(--tx2);padding:var(--s3) 0;border-top:1px solid var(--div);margin-top:auto;text-align:center">CrazyFuel © 2026 — Données démo · <a href="https://www.data.gouv.fr/fr/datasets/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener" style="color:var(--pri)">Connecter data.gouv.fr</a> pour les prix en temps réel.</div>
+  <div style="font-size:.68rem;color:var(--tx2);padding:var(--s3) 0;border-top:1px solid var(--div);margin-top:auto;text-align:center">
+    CrazyFuel © 2026 — Source : <a href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener" style="color:var(--pri)">data.economie.gouv.fr</a> · Ministère de l'Économie
+  </div>
 </main>
 </div>
-
-<!-- ══ MOBILE NAV ════════════════════════════════════════ -->
 <nav class="mob-nav">
   <button class="mob-btn active" data-view="mapView"><span class="mico">🗺️</span><span>Carte</span></button>
   <button class="mob-btn" data-view="authView"><span class="mico">👤</span><span>Compte</span></button>
   <button class="mob-btn" data-view="communityView"><span class="mico">💬</span><span>Comm.</span></button>
   <button class="mob-btn" data-view="adminView"><span class="mico">🛡️</span><span>Admin</span></button>
 </nav>
-
 <div class="toast" id="toast"></div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
-const FUELS=['Gazole','SP95','SP95-E10','SP98','GPLc','E85'];
-const FC={Gazole:'#2563eb',SP95:'#16a34a','SP95-E10':'#059669',SP98:'#7c3aed',GPLc:'#0891b2',E85:'#ca8a04'};
-const FCLS={Gazole:'fc-g',SP95:'fc-95','SP95-E10':'fc-e10',SP98:'fc-98',GPLc:'fc-gpl',E85:'fc-e85'};
+// ── CONFIGURATION API ────────────────────────────────────
+// API officielle Ministère de l'Économie — données carburants
+// Endpoint OpenDataSoft / Opendatasoft CORS-friendly
+const API_BASE = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records';
+const API_LIMIT = 100; // max par appel
+const REFRESH_MS = 10 * 60 * 1000; // 10 min (cadence API officielle)
 
-const S={user:null,fuel:'SP95-E10',pos:{lat:46.60,lng:1.88},stations:[],comments:[],proposals:[],activity:[],selId:null,map:null,markers:[]};
+// Mapping noms API → noms app
+const FUEL_API_MAP = {
+  'gazole': 'Gazole',
+  'sp95': 'SP95',
+  'e10': 'SP95-E10',
+  'sp98': 'SP98',
+  'gplc': 'GPLc',
+  'e85': 'E85'
+};
+const FUELS = ['Gazole','SP95','SP95-E10','SP98','GPLc','E85'];
+const FC = {Gazole:'#2563eb',SP95:'#16a34a','SP95-E10':'#059669',SP98:'#7c3aed',GPLc:'#0891b2',E85:'#ca8a04'};
+const FCLS = {Gazole:'fc-g',SP95:'fc-95','SP95-E10':'fc-e10',SP98:'fc-98',GPLc:'fc-gpl',E85:'fc-e85'};
 
-const DEMO=[
+const S = {
+  user:null, fuel:'SP95-E10',
+  pos:{lat:46.60,lng:1.88},
+  stations:[], comments:[], proposals:[], activity:[],
+  selId:null, map:null, markers:[],
+  usingLiveData:false, lastUpdate:null,
+  refreshTimer:null
+};
+
+// ── DEMO DATA (fallback) ─────────────────────────────────
+const DEMO = [
   {id:1,name:'TotalEnergies Rivoli',city:'Paris',lat:48.855,lng:2.357,addr:'12 Rue de Rivoli',prices:{Gazole:1.702,SP95:1.829,'SP95-E10':1.781,SP98:1.902,GPLc:0.992,E85:0.869}},
   {id:2,name:'E.Leclerc Frouard',city:'Frouard',lat:48.761,lng:6.132,addr:'Zone commerciale Grand Air',prices:{Gazole:1.621,SP95:1.748,'SP95-E10':1.709,SP98:1.832,GPLc:0.954,E85:0.792}},
   {id:3,name:'Carrefour Mérignac',city:'Mérignac',lat:44.842,lng:-0.667,addr:'Avenue de la Somme',prices:{Gazole:1.644,SP95:1.765,'SP95-E10':1.721,SP98:1.845,GPLc:0.979,E85:0.801}},
@@ -593,256 +386,363 @@ const DEMO=[
   {id:7,name:'Super U Nantes',city:'Nantes',lat:47.249,lng:-1.506,addr:'Route de Saint-Joseph',prices:{Gazole:1.648,SP95:1.771,'SP95-E10':1.725,SP98:1.849,GPLc:0.973,E85:0.806}},
   {id:8,name:'Casino Lyon Sud',city:'Lyon',lat:45.721,lng:4.824,addr:'Av. du Gén. de Gaulle',prices:{Gazole:1.661,SP95:1.788,'SP95-E10':1.734,SP98:1.861,GPLc:0.981,E85:0.814}},
   {id:9,name:'Leclerc Montpellier',city:'Montpellier',lat:43.612,lng:3.877,addr:'Route de Carnon',prices:{Gazole:1.629,SP95:1.753,'SP95-E10':1.711,SP98:1.834,GPLc:0.961,E85:0.799}},
-  {id:10,name:'U Express Lille Centre',city:'Lille',lat:50.633,lng:3.059,addr:'Rue Nationale',prices:{Gazole:1.658,SP95:1.781,'SP95-E10':1.736,SP98:1.858,GPLc:0.977,E85:0.809}}
+  {id:10,name:'U Express Lille',city:'Lille',lat:50.633,lng:3.059,addr:'Rue Nationale',prices:{Gazole:1.658,SP95:1.781,'SP95-E10':1.736,SP98:1.858,GPLc:0.977,E85:0.809}}
 ];
 
-function toast(msg,d=2600){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),d);
+// ── API FETCH ────────────────────────────────────────────
+// Parse un record OpenDataSoft v2 en objet station CrazyFuel
+function parseRecord(rec) {
+  // Les prix sont dans des champs: gazole_prix, sp95_prix, e10_prix, sp98_prix, gplc_prix, e85_prix
+  const prices = {};
+  for (const [apiKey, appKey] of Object.entries(FUEL_API_MAP)) {
+    const raw = rec[apiKey + '_prix'];
+    const val = raw !== null && raw !== undefined && raw !== '' ? parseFloat(raw) : null;
+    if (val && val > 0 && val < 10) prices[appKey] = val;
+  }
+  // Nécessite au moins un prix valide
+  if (Object.keys(prices).length === 0) return null;
+  const lat = rec.geom?.lat ?? rec.latitude;
+  const lng = rec.geom?.lon ?? rec.longitude;
+  if (!lat || !lng) return null;
+  return {
+    id: rec.id || rec.identifiant,
+    name: [rec.enseignes, rec.enseignes_nom_a_la_pompe].filter(Boolean).join(' — ') || `Station ${rec.id}`,
+    city: rec.ville || rec.cp || '',
+    addr: rec.adresse || '',
+    lat: parseFloat(lat),
+    lng: parseFloat(lng),
+    prices,
+    updatedAt: rec.gazole_maj || rec.sp95_maj || rec.e10_maj || null
+  };
 }
 
-function km(a,b,c,d){
+async function fetchApiPage(offset = 0) {
+  const params = new URLSearchParams({
+    limit: API_LIMIT,
+    offset,
+    // On exclut les stations sans coordonnées
+    where: 'geom is not null',
+    select: 'id,enseignes,enseignes_nom_a_la_pompe,ville,adresse,cp,geom,gazole_prix,sp95_prix,e10_prix,sp98_prix,gplc_prix,e85_prix,gazole_maj,sp95_maj,e10_maj'
+  });
+  const res = await fetch(`${API_BASE}?${params}`, {
+    headers: { 'Accept': 'application/json' },
+    signal: AbortSignal.timeout(12000)
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function loadLiveData() {
+  setStatus('load', 'Connexion à data.economie.gouv.fr…');
+  setBanner('demo', '⏳ Chargement des données en cours…');
+  try {
+    // On charge les 100 premières stations (suffisant pour la démo live, paginer si besoin)
+    const data = await fetchApiPage(0);
+    const stations = (data.results || []).map(parseRecord).filter(Boolean);
+    if (stations.length === 0) throw new Error('Aucune station parsée');
+    S.stations = stations;
+    S.usingLiveData = true;
+    S.lastUpdate = new Date();
+    const ts = S.lastUpdate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+    setStatus('live', `Données en direct · ${ts}`);
+    setBanner('live', `✅ ${stations.length} stations chargées depuis l'API officielle · Mise à jour : ${ts}`);
+    document.getElementById('dataSourceLabel').textContent = 'API officielle';
+    document.getElementById('lastUpdateVal').textContent = ts;
+    pushLog(`📡 API live — ${stations.length} stations chargées`);
+    toast(`✅ ${stations.length} stations live chargées !`);
+    renderAll();
+    // Replanifier dans 10 min
+    if (S.refreshTimer) clearTimeout(S.refreshTimer);
+    S.refreshTimer = setTimeout(loadLiveData, REFRESH_MS);
+  } catch(err) {
+    console.warn('API data.economie.gouv.fr indisponible :', err.message);
+    setStatus('demo', 'API indisponible — données de démo');
+    setBanner('error', `⚠️ API temporairement inaccessible (CORS / réseau). Données de démo affichées. <a href="https://data.economie.gouv.fr/explore/dataset/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener" style="color:var(--pri)">Ouvrir la source</a>`);
+    loadDemoFallback();
+  }
+}
+
+function loadDemoFallback() {
+  S.stations = JSON.parse(JSON.stringify(DEMO));
+  S.usingLiveData = false;
+  document.getElementById('dataSourceLabel').textContent = 'Démo locale';
+  document.getElementById('lastUpdateVal').textContent = '—';
+  renderAll();
+}
+
+function setStatus(type, text) {
+  const dot = document.getElementById('statusDot');
+  const span = document.getElementById('statusText');
+  dot.className = 'dot ' + (type==='live'?'dot-live':type==='demo'?'dot-demo':'dot-load');
+  if (span) span.textContent = text;
+}
+
+function setBanner(type, html) {
+  const b = document.getElementById('apiBanner');
+  if (!b) return;
+  b.className = 'api-banner ' + type;
+  b.innerHTML = html;
+}
+
+// ── HELPERS ──────────────────────────────────────────────
+function toast(msg, d=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), d);
+}
+function km(a,b,c,d) {
   const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;
   const z=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;
-  return+(2*R*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))).toFixed(1);
+  return +(2*R*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))).toFixed(1);
+}
+function now() { return new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
+function pushLog(msg) { S.activity.unshift({id:Date.now(),msg,at:now()}); S.activity=S.activity.slice(0,20); }
+
+// ── HYDRATE SELECTS ──────────────────────────────────────
+function hydrate() {
+  const fH = FUELS.map(f=>`<option value="${f}">${f}</option>`).join('');
+  ['fuelFilter','profileFuelSelect','proposalFuel'].forEach(id=>{
+    const e=document.getElementById(id); if(e){e.innerHTML=fH;e.value=S.fuel;}
+  });
+  // Limiter les stations dans les selects (max 200 pour les perfs)
+  const stH = S.stations.slice(0,200).map(s=>`<option value="${s.id}">${s.name}${s.city?' — '+s.city:''}</option>`).join('');
+  ['commentStation','proposalStation'].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.innerHTML=stH;
+  });
 }
 
-function resetDemo(){
-  S.stations=JSON.parse(JSON.stringify(DEMO));
-  S.comments=[
-    {id:1,stId:2,author:'Lucas',text:'Prix conformes ce matin, accès facile et rapide.',status:'approved',at:Date.now()-3e5},
-    {id:2,stId:1,author:'Nora',text:'Beaucoup de monde à midi, mais prix affichés corrects.',status:'pending',at:Date.now()}
-  ];
-  S.proposals=[{id:1,stId:6,fuel:'SP95-E10',price:1.689,reason:'Photo ticket à 18h20 ce soir.',author:'Mathis',status:'pending',at:Date.now()}];
-  S.activity=[{id:1,msg:'✅ Base de démo rechargée',at:now()}];
-  S.selId=null;
-  renderAll();
-  toast('✅ Démo rechargée');
-}
-
-function now(){return new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
-function pushLog(msg){S.activity.unshift({id:Date.now(),msg,at:now()});S.activity=S.activity.slice(0,20);}
-
-function hydrate(){
-  const fH=FUELS.map(f=>`<option value="${f}">${f}</option>`).join('');
-  ['fuelFilter','profileFuelSelect','proposalFuel'].forEach(id=>{const e=document.getElementById(id);if(e){e.innerHTML=fH;e.value=S.fuel;}});
-  const stH=S.stations.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-  ['commentStation','proposalStation'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=stH;});
-}
-
-function filtered(){
-  const f=document.getElementById('fuelFilter')?.value||S.fuel;
-  const q=(document.getElementById('searchFilter')?.value||'').toLowerCase();
-  const mx=parseFloat(document.getElementById('maxPriceFilter')?.value||'999');
-  const so=document.getElementById('sortFilter')?.value||'price';
+// ── FILTERED STATIONS ────────────────────────────────────
+function filtered() {
+  const f = document.getElementById('fuelFilter')?.value || S.fuel;
+  const q = (document.getElementById('searchFilter')?.value || '').toLowerCase();
+  const mx = parseFloat(document.getElementById('maxPriceFilter')?.value || '999');
+  const so = document.getElementById('sortFilter')?.value || 'price';
   return S.stations
-    .filter(s=>(q?`${s.name} ${s.city}`.toLowerCase().includes(q):true)&&s.prices[f]<=mx)
-    .sort((a,b)=>so==='name'?a.name.localeCompare(b.name):so==='distance'?km(S.pos.lat,S.pos.lng,a.lat,a.lng)-km(S.pos.lat,S.pos.lng,b.lat,b.lng):a.prices[f]-b.prices[f]);
+    .filter(s => s.prices[f] && s.prices[f] <= mx && (q ? `${s.name} ${s.city}`.toLowerCase().includes(q) : true))
+    .sort((a,b) => so==='name' ? a.name.localeCompare(b.name)
+      : so==='distance' ? km(S.pos.lat,S.pos.lng,a.lat,a.lng)-km(S.pos.lat,S.pos.lng,b.lat,b.lng)
+      : a.prices[f]-b.prices[f]);
 }
 
-function mkIcon(color){
-  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='40' viewBox='0 0 32 40'><path d='M16 0C7.2 0 0 7.2 0 16c0 11.6 16 24 16 24S32 27.6 32 16C32 7.2 24.8 0 16 0z' fill='${color}'/><circle cx='16' cy='16' r='7' fill='white' opacity='.92'/><circle cx='16' cy='16' r='4' fill='${color}' opacity='.6'/></svg>`;
-  return L.divIcon({html:svg,className:'',iconSize:[32,40],iconAnchor:[16,40],popupAnchor:[0,-40]});
+// ── MAP ──────────────────────────────────────────────────
+function mkIcon(color) {
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='28' height='36' viewBox='0 0 28 36'><path d='M14 0C6.3 0 0 6.3 0 14c0 10.2 14 22 14 22S28 24.2 28 14C28 6.3 21.7 0 14 0z' fill='${color}'/><circle cx='14' cy='14' r='6' fill='white' opacity='.9'/><circle cx='14' cy='14' r='3.5' fill='${color}' opacity='.55'/></svg>`;
+  return L.divIcon({html:svg,className:'',iconSize:[28,36],iconAnchor:[14,36],popupAnchor:[0,-36]});
 }
 
-function renderMap(){
-  if(!S.map){
-    S.map=L.map('map').setView([46.60,1.88],6);
+function renderMap() {
+  if (!S.map) {
+    S.map = L.map('map').setView([46.60, 1.88], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(S.map);
   }
-  S.markers.forEach(m=>m.remove());S.markers=[];
-  const f=document.getElementById('fuelFilter')?.value||S.fuel;
-  const c=FC[f]||'#0a7880';
-  filtered().forEach(st=>{
-    const mk=L.marker([st.lat,st.lng],{icon:mkIcon(c)}).addTo(S.map);
-    mk.bindPopup(`<strong style='font-size:14px'>${st.name}</strong><br><span style='color:#666;font-size:12px'>${st.city}</span><br><span style='color:${c};font-size:15px;font-weight:800'>${st.prices[f].toFixed(3)} €/L</span>`);
-    mk.on('click',()=>{S.selId=st.id;renderDetail();});
+  S.markers.forEach(m=>m.remove()); S.markers=[];
+  const f = document.getElementById('fuelFilter')?.value || S.fuel;
+  const c = FC[f] || '#0a7880';
+  const list = filtered().slice(0, 500); // limiter les marqueurs pour les perfs
+  list.forEach(st => {
+    const mk = L.marker([st.lat,st.lng],{icon:mkIcon(c)}).addTo(S.map);
+    const upd = st.updatedAt ? `<br><span style='font-size:11px;color:#888'>MAJ: ${new Date(st.updatedAt).toLocaleDateString('fr-FR')}</span>` : '';
+    mk.bindPopup(`<strong style='font-size:14px'>${st.name}</strong><br><span style='color:#666;font-size:12px'>${st.city}</span><br><span style='color:${c};font-size:15px;font-weight:800'>${st.prices[f].toFixed(3)} €/L</span>${upd}`);
+    mk.on('click',()=>{S.selId=st.id; renderDetail();});
     S.markers.push(mk);
   });
 }
 
-function rankHTML(st,f,idx,showDist){
-  const cls=['r1','r2','r3'][idx]||'r3';
-  const d=showDist?km(S.pos.lat,S.pos.lng,st.lat,st.lng)+' km':'';
+// ── RANKINGS ─────────────────────────────────────────────
+function rankHTML(st, f, idx, showDist) {
+  const cls = ['r1','r2','r3'][idx] || 'r3';
+  const d = showDist ? km(S.pos.lat,S.pos.lng,st.lat,st.lng)+' km' : '';
   return `<div class="rank-item"><div class="rank-num ${cls}">${idx+1}</div><div class="rank-info"><div class="rank-name">${st.name}</div><div class="rank-city">${st.city}${d?' · '+d:''}</div></div><div class="rank-price">${st.prices[f].toFixed(3)} €</div></div>`;
 }
 
-function renderRankings(){
-  const f=S.fuel;
-  document.getElementById('sidebarFuel').textContent=f;
-  document.getElementById('nFuelBadge').textContent=f;
-  const nat=[...S.stations].sort((a,b)=>a.prices[f]-b.prices[f]).slice(0,3);
-  const near=[...S.stations].sort((a,b)=>km(S.pos.lat,S.pos.lng,a.lat,a.lng)-km(S.pos.lat,S.pos.lng,b.lat,b.lng)).slice(0,8).sort((a,b)=>a.prices[f]-b.prices[f]).slice(0,3);
-  document.getElementById('nationalTop').innerHTML=nat.map((s,i)=>rankHTML(s,f,i,false)).join('');
-  document.getElementById('nearbyTop').innerHTML=near.map((s,i)=>rankHTML(s,f,i,true)).join('');
+function renderRankings() {
+  const f = S.fuel;
+  document.getElementById('sidebarFuel').textContent = f;
+  document.getElementById('nFuelBadge').textContent = f;
+  const withFuel = S.stations.filter(s=>s.prices[f]);
+  const nat = [...withFuel].sort((a,b)=>a.prices[f]-b.prices[f]).slice(0,3);
+  const near = [...withFuel].sort((a,b)=>km(S.pos.lat,S.pos.lng,a.lat,a.lng)-km(S.pos.lat,S.pos.lng,b.lat,b.lng)).slice(0,20).sort((a,b)=>a.prices[f]-b.prices[f]).slice(0,3);
+  document.getElementById('nationalTop').innerHTML = nat.length ? nat.map((s,i)=>rankHTML(s,f,i,false)).join('') : '<div class="empty" style="padding:var(--s4) 0"><p>Aucune station avec ce carburant.</p></div>';
+  document.getElementById('nearbyTop').innerHTML = near.length ? near.map((s,i)=>rankHTML(s,f,i,true)).join('') : '<div class="empty" style="padding:var(--s4) 0"><p>Activez la géolocalisation pour afficher.</p></div>';
 }
 
-function renderDetail(){
-  const st=S.stations.find(s=>s.id===S.selId);
-  const box=document.getElementById('stationDetails');
-  if(!st){box.innerHTML='<div class="empty" style="padding:var(--s5) 0"><div class="empty-ico">🗺️</div><p>Cliquez un marqueur sur la carte.</p></div>';return;}
-  const vals=Object.values(st.prices);
-  const minP=Math.min(...vals),maxP=Math.max(...vals);
-  const comms=S.comments.filter(c=>c.stId===st.id&&c.status==='approved');
-  box.innerHTML=`
+function renderDetail() {
+  const st = S.stations.find(s=>s.id===S.selId);
+  const box = document.getElementById('stationDetails');
+  if (!st) { box.innerHTML='<div class="empty" style="padding:var(--s5) 0"><div class="empty-ico">🗺️</div><p>Cliquez un marqueur sur la carte.</p></div>'; return; }
+  const vals = FUELS.map(f=>st.prices[f]).filter(v=>v);
+  const minP = Math.min(...vals), maxP = Math.max(...vals);
+  const comms = S.comments.filter(c=>c.stId===st.id&&c.status==='approved');
+  box.innerHTML = `
     <div style="margin-bottom:var(--s4)">
       <div style="font-family:var(--fdis);font-size:var(--tl);font-weight:800;letter-spacing:-.02em">${st.name}</div>
-      <div style="font-size:var(--ts);color:var(--tx1);margin-top:2px">${st.city} · ${st.addr}</div>
+      <div style="font-size:var(--ts);color:var(--tx1);margin-top:2px">${st.city}${st.addr?' · '+st.addr:''}</div>
     </div>
-    <div class="price-grid">${FUELS.map(f=>`<div class="price-chip${st.prices[f]===minP?' best':st.prices[f]===maxP?' worst':''}"><div class="f-name">${f}</div><div class="f-val" style="color:${FC[f]}">${st.prices[f].toFixed(3)} €</div></div>`).join('')}</div>
+    <div class="price-grid">${FUELS.map(f=>st.prices[f]?`<div class="price-chip${st.prices[f]===minP?' best':st.prices[f]===maxP?' worst':''}"><div class="f-name">${f}</div><div class="f-val" style="color:${FC[f]}">${st.prices[f].toFixed(3)} €</div></div>`:'').join('')}</div>
     ${comms.length?`<div style="margin-top:var(--s4)">
       <div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tx2);margin-bottom:var(--s2)">Commentaires (${comms.length})</div>
       ${comms.map(c=>`<div style="padding:.5rem .75rem;background:var(--sur2);border-radius:var(--r3);font-size:var(--ts);margin-bottom:var(--s2);border:1px solid var(--bor)"><strong>${c.author}</strong> — ${c.text}</div>`).join('')}
-    </div>`:''}`;  
+    </div>`:''}`;
 }
 
-function renderSession(){
-  const box=document.getElementById('sessionCard');
-  if(!S.user){
-    box.innerHTML=`<div class="empty" style="padding:var(--s5) 0"><div class="empty-ico">👤</div><h3>Invité</h3><p>Créez un compte pour commenter et proposer des corrections.</p></div>`;
-    return;
-  }
-  box.innerHTML=`
+function renderSession() {
+  const box = document.getElementById('sessionCard');
+  if (!S.user) { box.innerHTML=`<div class="empty" style="padding:var(--s5) 0"><div class="empty-ico">👤</div><h3>Invité</h3><p>Créez un compte pour commenter et proposer des corrections.</p></div>`; return; }
+  box.innerHTML = `
     <div class="profile-row"><span class="profile-key">Prénom</span><span class="profile-val">${S.user.name}</span></div>
     <div class="profile-row"><span class="profile-key">Email</span><span class="profile-val">${S.user.email}</span></div>
-    <div class="profile-row"><span class="profile-key">Carburant</span><span class="profile-val"><span class="fuel-chip ${FCLS[S.user.fuel]||''} ">${S.user.fuel}</span></span></div>
-    <div class="profile-row"><span class="profile-key">Rôle</span><span class="profile-val"><span class="badge bg-ok">Membre</span></span></div>`;
+    <div class="profile-row"><span class="profile-key">Carburant</span><span class="profile-val"><span class="fuel-chip ${FCLS[S.user.fuel]||''}">${S.user.fuel}</span></span></div>
+    <div class="profile-row"><span class="profile-key">Source données</span><span class="profile-val"><span class="badge ${S.usingLiveData?'bg-ok':'bg-warn'}">${S.usingLiveData?'Live API':'Démo'}</span></span></div>`;
 }
 
-function renderComments(){
-  const ap=S.comments.filter(c=>c.status==='approved').sort((a,b)=>b.at-a.at);
-  const c2=document.getElementById('commCount2'); if(c2)c2.textContent=ap.length+' publiés';
-  document.getElementById('approvedComments').innerHTML=ap.map(c=>{
-    const st=S.stations.find(s=>s.id===c.stId);
-    return `<div class="comment"><div class="comment-top"><span class="comment-author">${c.author}</span><span class="comment-station">${st?.name||''}</span></div><div class="comment-body">${c.text}</div></div>`;
-  }).join('')||`<div class="empty" style="padding:var(--s8) 0"><div class="empty-ico">💬</div><h3>Aucun commentaire</h3><p>Soyez le premier à commenter une station.</p></div>`;
+function renderComments() {
+  const ap = S.comments.filter(c=>c.status==='approved').sort((a,b)=>b.at-a.at);
+  const c2 = document.getElementById('commCount2'); if(c2) c2.textContent = ap.length+' publiés';
+  document.getElementById('approvedComments').innerHTML = ap.map(c=>{
+    const st = S.stations.find(s=>s.id===c.stId);
+    return `<div class="comment"><div class="comment-top"><span class="comment-author">${c.author}</span><span class="comment-station">${st?.name||'Station'}</span></div><div class="comment-body">${c.text}</div></div>`;
+  }).join('') || `<div class="empty" style="padding:var(--s8) 0"><div class="empty-ico">💬</div><h3>Aucun commentaire</h3><p>Soyez le premier à commenter une station.</p></div>`;
 }
 
-function renderAdmin(){
-  const q=[
+function renderAdmin() {
+  const q = [
     ...S.comments.filter(c=>c.status==='pending').map(c=>({type:'comment',...c})),
     ...S.proposals.filter(p=>p.status==='pending').map(p=>({type:'proposal',...p}))
   ].sort((a,b)=>b.at-a.at);
-  const qc=document.getElementById('queueCount'); if(qc)qc.textContent=q.length;
-  document.getElementById('adminQueue').innerHTML=q.map(item=>{
-    const st=S.stations.find(s=>s.id===item.stId);
+  const qc = document.getElementById('queueCount'); if(qc) qc.textContent = q.length;
+  document.getElementById('adminQueue').innerHTML = q.map(item=>{
+    const st = S.stations.find(s=>s.id===item.stId);
     return `<div class="admin-item">
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:var(--s2)">
+      <div style="display:flex;gap:6px;margin-bottom:var(--s2)">
         <span class="badge ${item.type==='comment'?'bg-pri':'bg-acc'}">${item.type==='comment'?'Commentaire':'Correction prix'}</span>
         <span class="badge bg-warn">En attente</span>
       </div>
       <div style="font-weight:700;font-size:var(--ts);margin-bottom:2px">${st?.name||'?'} — ${st?.city||''}</div>
       <div style="font-size:.7rem;color:var(--tx2);margin-bottom:var(--s2)">Par <strong>${item.author}</strong></div>
-      <div style="font-size:var(--ts);padding:var(--s2) var(--s3);background:var(--bg);border-radius:var(--r3);border:1px solid var(--bor);line-height:1.55">${item.type==='comment'?item.text:`<span class="fuel-chip ${FCLS[item.fuel]||''}">${item.fuel}</span> → <strong style="color:var(--ok)">${item.price?.toFixed(3)} €/L</strong><br><span style="font-size:.72rem;color:var(--tx1);margin-top:4px;display:block">${item.reason}</span>`}</div>
+      <div style="font-size:var(--ts);padding:var(--s2) var(--s3);background:var(--bg);border-radius:var(--r3);border:1px solid var(--bor);line-height:1.55">${item.type==='comment'?item.text:`<span class="fuel-chip ${FCLS[item.fuel]||''}">${item.fuel}</span> → <strong style="color:var(--ok)">${item.price?.toFixed(3)} €/L</strong><br><span style="font-size:.72rem;color:var(--tx1);display:block;margin-top:4px">${item.reason}</span>`}</div>
       <div class="admin-btns">
         <button class="btn btn-sm btn-pri" onclick="approv('${item.type}',${item.id})">✓ Approuver</button>
         <button class="btn btn-sm btn-err" onclick="rejec('${item.type}',${item.id})">✕ Refuser</button>
       </div>
     </div>`;
-  }).join('')||`<div class="empty" style="padding:var(--s8) 0"><div class="empty-ico">✅</div><h3>File vide</h3><p>Aucune contribution en attente de validation.</p></div>`;
-  document.getElementById('activityLog').innerHTML=S.activity.map(l=>`<div class="log-item"><div class="log-dot"></div><div class="log-msg">${l.msg}</div><div class="log-time">${l.at}</div></div>`).join('');
+  }).join('') || `<div class="empty" style="padding:var(--s8) 0"><div class="empty-ico">✅</div><h3>File vide</h3><p>Aucune contribution en attente.</p></div>`;
+  document.getElementById('activityLog').innerHTML = S.activity.map(l=>`<div class="log-item"><div class="log-dot"></div><div class="log-msg">${l.msg}</div><div class="log-time">${l.at}</div></div>`).join('');
 }
 
-function counters(){
-  document.getElementById('stationCount').textContent=S.stations.length;
-  document.getElementById('pendingCount').textContent=S.comments.filter(c=>c.status==='pending').length+S.proposals.filter(p=>p.status==='pending').length;
-  document.getElementById('commentCount').textContent=S.comments.filter(c=>c.status==='approved').length;
+function counters() {
+  document.getElementById('stationCount').textContent = S.stations.length;
+  document.getElementById('pendingCount').textContent = S.comments.filter(c=>c.status==='pending').length + S.proposals.filter(p=>p.status==='pending').length;
+  document.getElementById('commentCount').textContent = S.comments.filter(c=>c.status==='approved').length;
 }
 
-function renderAll(){hydrate();counters();renderMap();renderRankings();renderDetail();renderSession();renderComments();renderAdmin();}
+function renderAll() { hydrate(); counters(); renderMap(); renderRankings(); renderDetail(); renderSession(); renderComments(); renderAdmin(); }
 
-function approv(type,id){
-  if(type==='comment'){const c=S.comments.find(x=>x.id===id);if(!c)return;c.status='approved';pushLog(`✅ Commentaire approuvé — ${S.stations.find(s=>s.id===c.stId)?.name}`);toast('Commentaire publié !');}
-  else{const p=S.proposals.find(x=>x.id===id);if(!p)return;p.status='approved';const st=S.stations.find(s=>s.id===p.stId);if(st)st.prices[p.fuel]=p.price;pushLog(`⛽ Prix ${p.fuel} mis à jour — ${st?.name}`);toast('Prix mis à jour sur la carte !');}
+// ── ADMIN ACTIONS ─────────────────────────────────────────
+function approv(type, id) {
+  if (type==='comment') { const c=S.comments.find(x=>x.id===id); if(!c)return; c.status='approved'; pushLog(`✅ Commentaire approuvé — ${S.stations.find(s=>s.id===c.stId)?.name}`); toast('Commentaire publié !'); }
+  else { const p=S.proposals.find(x=>x.id===id); if(!p)return; p.status='approved'; const st=S.stations.find(s=>s.id===p.stId); if(st) st.prices[p.fuel]=p.price; pushLog(`⛽ Prix ${p.fuel} mis à jour — ${st?.name}`); toast('Prix mis à jour sur la carte !'); }
   renderAll();
 }
-function rejec(type,id){
-  if(type==='comment'){const c=S.comments.find(x=>x.id===id);if(!c)return;c.status='rejected';pushLog('❌ Commentaire refusé');}
-  else{const p=S.proposals.find(x=>x.id===id);if(!p)return;p.status='rejected';pushLog('❌ Correction refusée');}
-  toast('Contribution refusée.');renderAll();
+function rejec(type, id) {
+  if (type==='comment') { const c=S.comments.find(x=>x.id===id); if(!c)return; c.status='rejected'; pushLog('❌ Commentaire refusé'); }
+  else { const p=S.proposals.find(x=>x.id===id); if(!p)return; p.status='rejected'; pushLog('❌ Correction refusée'); }
+  toast('Contribution refusée.'); renderAll();
 }
-window.approv=approv;window.rejec=rejec;
+window.approv=approv; window.rejec=rejec;
 
-// View switch
-function switchView(id){
+// ── VIEW SWITCH ───────────────────────────────────────────
+function switchView(id) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
-  if(id==='mapView'&&S.map)setTimeout(()=>S.map.invalidateSize(),80);
+  if (id==='mapView'&&S.map) setTimeout(()=>S.map.invalidateSize(),80);
 }
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
 
-// Filters
-['fuelFilter','searchFilter','maxPriceFilter','sortFilter'].forEach(id=>{
-  document.getElementById(id)?.addEventListener('input',()=>{renderMap();renderDetail();});
-});
+// ── FILTERS ───────────────────────────────────────────────
+['fuelFilter','searchFilter','maxPriceFilter','sortFilter'].forEach(id=>
+  document.getElementById(id)?.addEventListener('input',()=>{renderMap();renderDetail();})
+);
 document.getElementById('fuelFilter')?.addEventListener('change',()=>renderRankings());
 document.getElementById('profileFuelSelect')?.addEventListener('change',e=>{
-  S.fuel=e.target.value;if(S.user)S.user.fuel=e.target.value;
-  document.getElementById('sidebarFuel').textContent=S.fuel;renderRankings();
+  S.fuel=e.target.value; if(S.user)S.user.fuel=e.target.value;
+  document.getElementById('sidebarFuel').textContent=S.fuel; renderRankings();
 });
 
-// Register
+// ── FORMS ─────────────────────────────────────────────────
 document.getElementById('registerForm').addEventListener('submit',e=>{
-  e.preventDefault();const fd=new FormData(e.target);
+  e.preventDefault(); const fd=new FormData(e.target);
   S.user={name:fd.get('name'),email:fd.get('email'),fuel:fd.get('preferredFuel')};
-  S.fuel=S.user.fuel;pushLog(`👤 Nouveau compte : ${S.user.name}`);
-  e.target.reset();toast(`Bienvenue, ${S.user.name} ! ✨`);renderAll();
+  S.fuel=S.user.fuel; pushLog(`👤 Nouveau compte : ${S.user.name}`);
+  e.target.reset(); toast(`Bienvenue, ${S.user.name} ! ✨`); renderAll();
 });
-
-// Comment
 document.getElementById('commentForm').addEventListener('submit',e=>{
   e.preventDefault();
-  if(!S.user)return toast('⚠️ Créez un compte d'abord.');
-  const txt=document.getElementById('commentText').value.trim();if(!txt)return;
+  if(!S.user) return toast('⚠️ Créez un compte d\'abord.');
+  const txt=document.getElementById('commentText').value.trim(); if(!txt)return;
   S.comments.unshift({id:Date.now(),stId:+document.getElementById('commentStation').value,author:S.user.name,text:txt,status:'pending',at:Date.now()});
   pushLog(`💬 Commentaire soumis par ${S.user.name}`);
   document.getElementById('commentText').value='';
-  toast('Commentaire envoyé en modération !');renderAll();
+  toast('Commentaire envoyé en modération !'); renderAll();
 });
-
-// Price proposal
 document.getElementById('priceProposalForm').addEventListener('submit',e=>{
   e.preventDefault();
-  if(!S.user)return toast('⚠️ Créez un compte d'abord.');
+  if(!S.user) return toast('⚠️ Créez un compte d\'abord.');
   const pr=parseFloat(document.getElementById('proposalPrice').value);
   const re=document.getElementById('proposalReason').value.trim();
   if(!pr||!re)return;
   S.proposals.unshift({id:Date.now(),stId:+document.getElementById('proposalStation').value,fuel:document.getElementById('proposalFuel').value,price:pr,reason:re,author:S.user.name,status:'pending',at:Date.now()});
   pushLog(`✏️ Correction proposée par ${S.user.name}`);
-  e.target.reset();toast('Correction envoyée en modération !');renderAll();
+  e.target.reset(); toast('Correction envoyée en modération !'); renderAll();
 });
 
-// Locate
+// ── LOCATE ────────────────────────────────────────────────
 document.getElementById('locateBtn').addEventListener('click',()=>{
-  if(!navigator.geolocation)return toast('Géoloc non disponible.');
+  if (!navigator.geolocation) return toast('Géoloc non disponible.');
   navigator.geolocation.getCurrentPosition(p=>{
     S.pos={lat:p.coords.latitude,lng:p.coords.longitude};
-    if(S.map)S.map.setView([S.pos.lat,S.pos.lng],11);
-    pushLog('📍 Position mise à jour');toast('📍 Position détectée !');renderRankings();
+    if(S.map) S.map.setView([S.pos.lat,S.pos.lng],11);
+    pushLog('📍 Position mise à jour'); toast('📍 Position détectée !'); renderRankings();
   },()=>toast('Position indisponible.'));
 });
 
-document.getElementById('seedBtn').addEventListener('click',resetDemo);
+// ── REFRESH & DEMO BUTTONS ────────────────────────────────
+document.getElementById('refreshBtn').addEventListener('click',()=>{ toast('🔄 Actualisation…'); loadLiveData(); });
+document.getElementById('seedBtn').addEventListener('click',()=>{
+  if(S.refreshTimer) clearTimeout(S.refreshTimer);
+  S.stations=JSON.parse(JSON.stringify(DEMO));
+  S.usingLiveData=false;
+  S.comments=[{id:1,stId:2,author:'Lucas',text:'Prix conformes ce matin.',status:'approved',at:Date.now()-3e5},{id:2,stId:1,author:'Nora',text:'Beaucoup de monde mais prix corrects.',status:'pending',at:Date.now()}];
+  S.proposals=[{id:1,stId:6,fuel:'SP95-E10',price:1.689,reason:'Photo ticket 18h20.',author:'Mathis',status:'pending',at:Date.now()}];
+  S.activity=[{id:1,msg:'🎭 Mode démo activé',at:now()}];
+  setStatus('demo','Mode démo — données locales');
+  setBanner('demo','🎭 Mode démo — données réelles disponibles via le bouton « Actualiser API »');
+  document.getElementById('dataSourceLabel').textContent='Démo locale';
+  document.getElementById('lastUpdateVal').textContent='—';
+  toast('🎭 Mode démo activé'); renderAll();
+});
 
-// iOS Theme toggle
+// ── THEME ─────────────────────────────────────────────────
 const chk=document.getElementById('themeChk');
 const html=document.documentElement;
-const emoji=document.getElementById('themeEmoji');
-const themeText=document.getElementById('themeText');
-function applyTheme(dark){
+function applyTheme(dark) {
   html.setAttribute('data-theme',dark?'dark':'light');
   chk.checked=dark;
-  if(emoji)emoji.textContent=dark?'🌙':'☀️';
-  if(themeText)themeText.textContent=dark?'Mode sombre':'Mode clair';
-  if(S.map)setTimeout(()=>S.map.invalidateSize(),200);
+  document.getElementById('themeEmoji').textContent=dark?'🌙':'☀️';
+  document.getElementById('themeText').textContent=dark?'Mode sombre':'Mode clair';
+  if(S.map) setTimeout(()=>S.map.invalidateSize(),200);
 }
-const prefersDark=matchMedia('(prefers-color-scheme:dark)').matches;
-applyTheme(prefersDark);
+applyTheme(matchMedia('(prefers-color-scheme:dark)').matches);
 chk.addEventListener('change',()=>applyTheme(chk.checked));
 
-resetDemo();
+// ── INIT ──────────────────────────────────────────────────
+// Initialiser avec la démo, puis tenter l'API live
+S.stations=JSON.parse(JSON.stringify(DEMO));
+S.comments=[];
+S.proposals=[];
+S.activity=[];
+hydrate(); counters(); renderMap(); renderRankings();
+loadLiveData();
 </script>
 </body>
 </html>
