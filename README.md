@@ -1,55 +1,111 @@
-# CrazyFuel
+# 🚗⛽ CrazyFuel
 
-CrazyFuel est une web app orientée produit qui permet de visualiser les prix des stations-service en France sur une carte interactive, avec une logique communautaire de commentaires, de corrections de prix et une validation centralisée par un administrateur.
+> Carte interactive temps réel des prix des carburants en France — avec espace communautaire et dashboard administrateur.
 
-## Fonctionnalités incluses
-
-- Carte interactive Leaflet avec stations réparties en France.
-- Affichage multi-carburants : Gazole, SP95, SP95-E10, SP98, GPLc et E85.
-- Profil utilisateur avec carburant préféré.
-- Classement des 3 stations les moins chères de France selon le carburant choisi dans le profil.
-- Classement des 3 stations les moins chères les plus proches de la position utilisateur.
-- Création de compte côté front (démonstration produit complète).
-- Publication de commentaires soumis à validation admin.
-- Propositions de correction de prix soumises à modération.
-- Dashboard administrateur avec file d'attente et journal d'activité.
-- Design épuré, responsive, mode sombre inclus.
-
-## Stack
-
-- HTML / CSS / JavaScript vanilla
-- [Leaflet](https://leafletjs.com/) + OpenStreetMap
-- Fonts via [Fontshare](https://www.fontshare.com/) (Satoshi + Cabinet Grotesk)
-
-## Structure
-
-```
-crazyfuel/
-├── crazyfuel.html   → application principale mono-page
-└── README.md
-```
-
-## Démarrage rapide
-
-Ouvrir `crazyfuel.html` directement dans un navigateur — aucune dépendance locale ni serveur requis.
-
-## Suite recommandée (production)
-
-1. Brancher une API temps réel de prix carburants (ex : data.gouv.fr prix-des-carburants).
-2. Ajouter un backend avec base de données pour comptes, commentaires et modération.
-3. Mettre en place une authentification sécurisée (JWT, OAuth).
-4. Déployer un backend admin avec rôles, audit trail et notifications.
-5. Système anti-abus pour les propositions communautaires (rate-limit, signalement).
-
-## Roadmap
-
-- [ ] Connexion API prix carburants temps réel
-- [ ] Authentification persistante
-- [ ] Backend modération
-- [ ] Notifications push (nouvelles corrections validées)
-- [ ] Mode hors-ligne (PWA)
-- [ ] Export CSV des prix par région
+[![Live Demo](https://img.shields.io/badge/demo-frontend-teal?style=flat-square)](https://github.com/Sazar/crazyfuel)
+[![Stack](https://img.shields.io/badge/stack-HTML%2FCSS%2FJS-orange?style=flat-square)]()
+[![Map](https://img.shields.io/badge/map-Leaflet-green?style=flat-square)]()
 
 ---
 
-*Projet démarré en juillet 2026.*
+## ✨ Fonctionnalités
+
+### 🗺️ Carte interactive
+- Affichage de toutes les stations-service de France sur une carte OpenStreetMap via Leaflet
+- Filtrage par **carburant** (Gazole, SP95, SP95-E10, SP98, GPLc, E85)
+- Filtrage par **ville ou enseigne**, **prix maximum**, **tri** (prix, distance, nom)
+- Clic sur un marqueur → détail complet de la station avec tous ses prix et ses commentaires validés
+
+### 🏆 Top 3 national & proximité
+- **Top 3 national** : les 3 stations les moins chères en France pour le carburant préféré du profil
+- **Top 3 proximité** : les 3 stations les moins chères parmi les plus proches de la position GPS de l’utilisateur
+- Mis à jour automatiquement dès qu’une correction de prix est approuvée par l’admin
+
+### 👤 Compte utilisateur
+- Création de compte avec **carburant préféré**
+- Le carburant du profil pilote les classements Top 3 en temps réel
+- Historique de session (sans backend persistant en version demo)
+
+### 💬 Communauté
+- **Commentaires** sur les stations (soumis en modération avant publication)
+- **Propositions de correction de prix** avec justification (soumises en modération)
+- Affichage des commentaires validés par station et dans le fil communautaire
+
+### 🛡️ Dashboard administrateur
+- **File de modération** : tous les commentaires et corrections en attente
+- **Approuver** → publie immédiatement le commentaire ou met à jour le prix sur la carte
+- **Refuser** → supprime la contribution de la file
+- **Journal d’activité** : historique complet des actions admin
+
+---
+
+## 🖼️ Stack technique
+
+| Couche | Technologie |
+|---|---|
+| Front-end | HTML5 / CSS3 (custom properties) / Vanilla JS |
+| Carte | [Leaflet.js](https://leafletjs.com/) + OpenStreetMap tiles |
+| Fonts | Fontshare (Cabinet Grotesk + Satoshi) |
+| Rendu | Single-page app, navigation par vue |
+| Backend (prod) | À connecter : API prix carburants + BDD + Auth |
+
+---
+
+## 🚀 Lancer le projet
+
+```bash
+# Cloner le repo
+git clone https://github.com/Sazar/crazyfuel.git
+cd crazyfuel
+
+# Ouvrir directement dans le navigateur
+open crazyfuel.html
+# ou avec un serveur local :
+npx serve .
+```
+
+Aucune dépendance npm requise. Toutes les librairies sont chargées via CDN.
+
+---
+
+## 📁 Structure
+
+```
+crazyfuel/
+├── crazyfuel.html   # Application complète (SPA)
+└── README.md        # Ce fichier
+```
+
+---
+
+## 🔌 Intégration production recommandée
+
+Pour passer en production, brancher les éléments suivants :
+
+- **API prix carburants** : [data.gouv.fr — Prix des carburants](https://www.data.gouv.fr/fr/datasets/prix-des-carburants-en-france-flux-instantane-v2/) (flux instantané officiel)
+- **Backend** : Node.js / Express ou Supabase pour l’auth, les commentaires et les propositions
+- **Base de données** : PostgreSQL ou Supabase avec RLS pour la gestion des rôles (member / admin)
+- **Auth** : Supabase Auth, Auth0, ou JWT maison
+- **Déploiement** : Vercel, Netlify, ou VPS OVH
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Connexion à l’API officielle data.gouv.fr (flux temps réel)
+- [ ] Authentification persistante (Supabase Auth)
+- [ ] Notifications push quand un prix baisse pour une station favorite
+- [ ] Historique des prix par station (graphique)
+- [ ] Application mobile (PWA)
+- [ ] Favoris par utilisateur
+- [ ] Export CSV des prix
+
+---
+
+## 📜 Licence
+
+MIT — libre d’utilisation et de modification.
+
+---
+
+*Projet développé avec ❤️ par [@Sazar](https://github.com/Sazar) — juillet 2026.*
