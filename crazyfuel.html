@@ -1,495 +1,809 @@
 <!DOCTYPE html>
 <html lang="fr" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CrazyFuel</title>
-  <meta name="description" content="Carte temps réel des prix des carburants en France avec communauté et validation admin." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@500,700,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <style>
-    :root, [data-theme="light"] {
-      --text-xs: clamp(.75rem,.7rem + .25vw,.875rem);
-      --text-sm: clamp(.875rem,.8rem + .35vw,1rem);
-      --text-base: clamp(1rem,.95rem + .25vw,1.125rem);
-      --text-lg: clamp(1.125rem,1rem + .75vw,1.5rem);
-      --text-xl: clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
-      --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem; --space-10:2.5rem; --space-12:3rem; --space-16:4rem;
-      --color-bg:#f7f6f2; --color-surface:#fbfbf9; --color-surface-2:#f1efe9; --color-border:#d9d4ca; --color-divider:#e3ddd3;
-      --color-text:#22211d; --color-text-muted:#68665f; --color-text-faint:#9f9b92; --color-text-inverse:#f9f8f4;
-      --color-primary:#0f6d75; --color-primary-hover:#0b5258; --color-primary-soft:#d8ecec; --color-success:#437a22; --color-warning:#b06c00; --color-error:#a13544;
-      --radius-sm:.5rem; --radius-md:.9rem; --radius-lg:1.25rem; --radius-xl:1.75rem; --radius-full:9999px;
-      --shadow-sm:0 2px 6px rgba(30,30,20,.06); --shadow-md:0 14px 40px rgba(30,30,20,.09);
-      --font-body:'Satoshi',system-ui,sans-serif; --font-display:'Cabinet Grotesk',system-ui,sans-serif;
-    }
-    [data-theme="dark"] {
-      --color-bg:#121311; --color-surface:#1b1d1a; --color-surface-2:#252723; --color-border:#353833; --color-divider:#2c2f2a;
-      --color-text:#ece8df; --color-text-muted:#b2aea3; --color-text-faint:#7e7a71; --color-text-inverse:#121311;
-      --color-primary:#68b5bb; --color-primary-hover:#8cc8cd; --color-primary-soft:#223437; --color-success:#7fb55f; --color-warning:#e1ad4d; --color-error:#df7180;
-      --shadow-sm:0 2px 8px rgba(0,0,0,.2); --shadow-md:0 18px 50px rgba(0,0,0,.35);
-    }
-    *,*::before,*::after{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;font-family:var(--font-body);background:var(--color-bg);color:var(--color-text);font-size:var(--text-base);line-height:1.5}
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer;border:none}
-    a{text-decoration:none;color:inherit}
-    img,svg{display:block;max-width:100%}
-    .app-shell{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
-    .sidebar{background:var(--color-surface);border-right:1px solid var(--color-border);padding:var(--space-5);display:flex;flex-direction:column;gap:var(--space-5);position:sticky;top:0;height:100vh;overflow-y:auto}
-    .brand{display:flex;align-items:center;gap:var(--space-3)}
-    .brand svg{width:40px;height:40px;color:var(--color-primary);flex-shrink:0}
-    .brand-title{font-family:var(--font-display);font-size:var(--text-xl);line-height:1}
-    .brand-sub{font-size:var(--text-xs);color:var(--color-text-muted);letter-spacing:.08em;text-transform:uppercase}
-    .nav{display:grid;gap:var(--space-1)}
-    .nav button{background:transparent;border:1px solid transparent;border-radius:var(--radius-md);padding:.8rem 1rem;text-align:left;color:var(--color-text-muted);transition:.18s ease;width:100%;font-size:var(--text-sm)}
-    .nav button.active,.nav button:hover{background:var(--color-surface-2);border-color:var(--color-border);color:var(--color-text)}
-    .sidebar-card,.panel,.station-card,.comment-card,.admin-card,.metric-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
-    .sidebar-card{padding:var(--space-4);display:grid;gap:var(--space-2)}
-    .main{padding:var(--space-5);display:grid;gap:var(--space-5);overflow-y:auto;height:100vh}
-    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-4);flex-wrap:wrap}
-    .heading h1{font-family:var(--font-display);font-size:var(--text-xl);margin:0 0 .3rem}
-    .heading p{margin:0;color:var(--color-text-muted);max-width:72ch;font-size:var(--text-sm)}
-    .actions{display:flex;gap:var(--space-2);align-items:center;flex-wrap:wrap}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem 1.1rem;border-radius:var(--radius-full);transition:.18s ease;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);font-size:var(--text-sm);font-weight:500;white-space:nowrap}
-    .btn.primary{background:var(--color-primary);border-color:var(--color-primary);color:#fff}
-    .btn.primary:hover{background:var(--color-primary-hover)}
-    .btn.ghost{background:transparent;border-color:transparent}
-    .dashboard-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:var(--space-5);align-items:start}
-    .panel{padding:var(--space-4)}
-    #map{height:58vh;border-radius:calc(var(--radius-lg) - .25rem)}
-    .filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-3);margin-bottom:var(--space-3)}
-    .field{display:grid;gap:.35rem}
-    .field label{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted)}
-    .field input,.field select,.field textarea{width:100%;background:var(--color-bg);border:1px solid var(--color-border);padding:.65rem .9rem;border-radius:var(--radius-md);color:var(--color-text);font-size:var(--text-sm)}
-    .field textarea{min-height:100px;resize:vertical}
-    .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-3)}
-    .metric-card{padding:var(--space-3)}
-    .metric-card strong{display:block;font-size:1.75rem;font-family:var(--font-display);line-height:1.1;margin-top:.2rem}
-    .list{display:grid;gap:var(--space-3)}
-    .station-card,.comment-card,.admin-card{padding:var(--space-3)}
-    .station-card h3,.admin-card h3{margin:0 0 .3rem;font-size:var(--text-sm);font-weight:700}
-    .muted{color:var(--color-text-muted);font-size:var(--text-sm)}
-    .tiny{font-size:var(--text-xs);color:var(--color-text-muted)}
-    .badge{display:inline-flex;align-items:center;padding:.3rem .65rem;border-radius:var(--radius-full);font-size:var(--text-xs);background:var(--color-primary-soft);color:var(--color-primary);font-weight:700}
-    .price-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-2);margin-top:var(--space-2)}
-    .price-chip{padding:.55rem .75rem;background:var(--color-surface-2);border-radius:var(--radius-md);border:1px solid var(--color-border)}
-    .price-chip span{display:block;font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:.05rem}
-    .price-chip strong{font-size:var(--text-sm);font-weight:700}
-    .hidden{display:none !important}
-    .auth-grid,.admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-5);align-items:start}
-    .section-title{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3)}
-    .section-title h2{margin:0;font-size:var(--text-lg);font-family:var(--font-display)}
-    .queue{display:grid;gap:var(--space-3)}
-    .comment-meta{display:flex;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap;margin-bottom:.4rem}
-    .footer-note{padding:var(--space-3) 0;color:var(--color-text-muted);font-size:var(--text-xs);border-top:1px solid var(--color-divider)}
-    .inline{display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center}
-    .hero-note{padding:var(--space-3) var(--space-4);background:linear-gradient(135deg,var(--color-primary-soft),transparent);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
-    .admin-actions{display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-3)}
-    .status-pending{color:var(--color-warning);font-weight:600}
-    .status-approved{color:var(--color-success);font-weight:600}
-    .status-rejected{color:var(--color-error);font-weight:600}
-    @media (max-width:1120px){.app-shell{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.dashboard-grid,.auth-grid,.admin-grid{grid-template-columns:1fr}.filters,.stats{grid-template-columns:1fr 1fr}}
-    @media (max-width:720px){.main{padding:var(--space-4);height:auto}.filters,.stats,.price-grid{grid-template-columns:1fr}.topbar{align-items:stretch}.actions{width:100%}.actions .btn{flex:1}}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CrazyFuel — Prix carburants France</title>
+<meta name="description" content="Carte temps réel des prix carburants en France. Communauté, corrections, dashboard admin."/>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@600,700,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+/* ─── TOKENS ─────────────────────────────────────────────── */
+:root,[data-theme="light"]{
+  --tx:.75rem;--ts:.875rem;--tb:1rem;--tl:1.2rem;--txl:1.6rem;
+  --s1:.25rem;--s2:.5rem;--s3:.75rem;--s4:1rem;--s5:1.25rem;--s6:1.5rem;--s8:2rem;--s10:2.5rem;
+  --bg:#f4f3ee;--sur:#fafaf7;--sur2:#efede6;--bor:rgba(0,0,0,.1);--div:rgba(0,0,0,.07);
+  --tx0:#1a1a16;--tx1:#5a5950;--tx2:#9e9b92;--txi:#fff;
+  --pri:#0e737c;--prih:#0a5860;--pris:#d3eeef;
+  --acc:#e8620a;--accS:#fde8d6;
+  --ok:#3d7a1a;--warn:#b06000;--err:#a01f38;
+  --r3:.75rem;--r4:1rem;--r6:1.5rem;--rf:9999px;
+  --sh1:0 2px 8px rgba(0,0,0,.06);--sh2:0 12px 36px rgba(0,0,0,.10);
+  --font:'Satoshi',system-ui,sans-serif;--fdis:'Cabinet Grotesk',system-ui,sans-serif;
+  --fuel-g:#2563eb;--fuel-95:#16a34a;--fuel-e10:#15803d;--fuel-98:#7c3aed;--fuel-gpl:#0891b2;--fuel-e85:#ca8a04;
+}
+[data-theme="dark"]{
+  --bg:#111210;--sur:#191b18;--sur2:#222420;--bor:rgba(255,255,255,.09);--div:rgba(255,255,255,.06);
+  --tx0:#e8e5db;--tx1:#a09d94;--tx2:#65625a;--txi:#111210;
+  --pri:#5ab4bc;--prih:#7fcdd4;--pris:#1c3436;
+  --acc:#f47a30;--accS:#3a2010;
+  --ok:#74b84e;--warn:#e0ad4d;--err:#e86070;
+  --sh1:0 2px 10px rgba(0,0,0,.25);--sh2:0 16px 48px rgba(0,0,0,.45);
+}
+
+/* ─── RESET ──────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:none;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--tx0);font-size:var(--tb);line-height:1.55;min-height:100dvh;overflow-x:hidden}
+body,html{transition:background .28s,color .28s}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{text-decoration:none;color:inherit}
+img,svg{display:block;max-width:100%}
+::selection{background:oklch(from var(--pri) l c h/.2)}
+:focus-visible{outline:2px solid var(--pri);outline-offset:3px;border-radius:4px}
+
+/* ─── LAYOUT ─────────────────────────────────────────────── */
+.shell{display:grid;grid-template-columns:260px 1fr;min-height:100dvh}
+
+/* ─── SIDEBAR ────────────────────────────────────────────── */
+.sidebar{
+  background:var(--sur);border-right:1px solid var(--bor);
+  padding:var(--s5);display:flex;flex-direction:column;gap:var(--s5);
+  position:sticky;top:0;height:100dvh;overflow-y:auto;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.brand{display:flex;align-items:center;gap:var(--s3)}
+.logo{width:44px;height:44px;background:linear-gradient(135deg,var(--pri),var(--acc));border-radius:var(--r3);display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 16px color-mix(in oklch,var(--pri) 35%,transparent)}
+.logo svg{width:26px;height:26px;color:#fff}
+.brand-name{font-family:var(--fdis);font-size:1.3rem;font-weight:800;line-height:1}
+.brand-tag{font-size:.7rem;color:var(--tx1);text-transform:uppercase;letter-spacing:.08em;margin-top:.15rem}
+
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav-btn{
+  display:flex;align-items:center;gap:var(--s3);
+  padding:.75rem var(--s3);border-radius:var(--r3);
+  color:var(--tx1);font-size:var(--ts);font-weight:500;
+  transition:all .2s cubic-bezier(.16,1,.3,1);position:relative;
+  text-align:left;width:100%;
+}
+.nav-btn .nav-ico{width:34px;height:34px;border-radius:var(--r3);display:grid;place-items:center;background:var(--sur2);flex-shrink:0;transition:all .2s cubic-bezier(.16,1,.3,1)}
+.nav-btn:hover{color:var(--tx0)}
+.nav-btn:hover .nav-ico{background:color-mix(in oklch,var(--pri) 12%,var(--sur2))}
+.nav-btn.active{color:var(--pri);font-weight:700}
+.nav-btn.active .nav-ico{background:var(--pris);color:var(--pri)}
+
+.fuel-pref-card{
+  padding:var(--s4);background:linear-gradient(135deg,var(--pris),transparent);
+  border:1px solid color-mix(in oklch,var(--pri) 25%,transparent);border-radius:var(--r4);
+}
+.fuel-pref-card .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx1);margin-bottom:.4rem}
+.fuel-pref-card .value{font-family:var(--fdis);font-size:1.1rem;font-weight:800;color:var(--pri)}
+
+/* iOS-style toggle */
+.theme-row{display:flex;align-items:center;justify-content:space-between;padding:var(--s3) var(--s4);background:var(--sur2);border-radius:var(--r4)}
+.theme-label{font-size:var(--ts);font-weight:500;color:var(--tx1)}
+.ios-toggle{position:relative;width:50px;height:28px;cursor:pointer}
+.ios-toggle input{opacity:0;width:0;height:0;position:absolute}
+.ios-track{
+  position:absolute;inset:0;border-radius:14px;
+  background:var(--bor);transition:background .3s cubic-bezier(.16,1,.3,1);
+  border:1px solid var(--div);
+}
+.ios-toggle input:checked + .ios-track{background:var(--pri);border-color:var(--pri)}
+.ios-knob{
+  position:absolute;top:3px;left:3px;width:22px;height:22px;
+  background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.2);
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1);
+  display:grid;place-items:center;
+}
+.ios-toggle input:checked ~ .ios-knob{transform:translateX(22px)}
+.ios-knob svg{width:12px;height:12px;transition:opacity .2s}
+.ico-sun{color:#f59e0b}
+.ico-moon{color:#6366f1;display:none}
+.ios-toggle input:checked ~ .ios-knob .ico-sun{display:none}
+.ios-toggle input:checked ~ .ios-knob .ico-moon{display:block}
+
+/* ─── MAIN ───────────────────────────────────────────────── */
+.main{padding:var(--s6);display:flex;flex-direction:column;gap:var(--s6);overflow-y:auto;min-height:100dvh}
+
+/* ─── PAGE HEADER ────────────────────────────────────────── */
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s4);flex-wrap:wrap}
+.page-title{font-family:var(--fdis);font-size:var(--txl);font-weight:800;line-height:1.1}
+.page-sub{font-size:var(--ts);color:var(--tx1);margin-top:.4rem;max-width:68ch}
+.acts{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center}
+
+/* ─── BUTTONS ────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:.65rem 1.1rem;border-radius:var(--rf);
+  font-size:var(--ts);font-weight:600;
+  border:1.5px solid var(--bor);background:var(--sur);color:var(--tx0);
+  transition:all .18s cubic-bezier(.16,1,.3,1);white-space:nowrap;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--sh1);border-color:color-mix(in oklch,var(--pri) 30%,var(--bor))}
+.btn:active{transform:translateY(0)}
+.btn-pri{
+  background:linear-gradient(135deg,var(--pri),color-mix(in oklch,var(--pri) 80%,var(--acc)));
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 14px color-mix(in oklch,var(--pri) 38%,transparent);
+}
+.btn-pri:hover{filter:brightness(1.07);box-shadow:0 6px 20px color-mix(in oklch,var(--pri) 45%,transparent)}
+.btn-acc{background:var(--acc);border-color:transparent;color:#fff;box-shadow:0 4px 14px color-mix(in oklch,var(--acc) 35%,transparent)}
+.btn-acc:hover{filter:brightness(1.07)}
+
+/* ─── KPIs ───────────────────────────────────────────────── */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4)}
+.kpi{
+  background:var(--sur);border:1px solid var(--bor);border-radius:var(--r4);
+  padding:var(--s4) var(--s5);box-shadow:var(--sh1);
+  display:flex;flex-direction:column;gap:.3rem;
+  transition:transform .2s,box-shadow .2s;
+}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx2);font-weight:600}
+.kpi-value{font-family:var(--fdis);font-size:1.9rem;font-weight:800;line-height:1;color:var(--tx0)}
+.kpi-sub{font-size:.72rem;color:var(--tx1)}
+
+/* ─── CARDS / PANELS ─────────────────────────────────────── */
+.card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r6);box-shadow:var(--sh1);padding:var(--s5)}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);margin-bottom:var(--s4)}
+.card-title{font-family:var(--fdis);font-size:var(--tl);font-weight:800}
+.card-hint{font-size:.72rem;color:var(--tx2)}
+
+.map-wrap{display:grid;grid-template-columns:1fr 340px;gap:var(--s5);align-items:start}
+#map{height:62vh;border-radius:var(--r4);overflow:hidden;z-index:0}
+
+/* ─── FILTERS ────────────────────────────────────────────── */
+.filters{display:flex;gap:var(--s3);flex-wrap:wrap;margin-bottom:var(--s4)}
+.fld{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:120px}
+.fld label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx2);font-weight:600}
+.fld input,.fld select{
+  background:var(--sur2);border:1.5px solid var(--bor);padding:.6rem .85rem;
+  border-radius:var(--r3);color:var(--tx0);font-size:var(--ts);
+  transition:border-color .18s;
+}
+.fld input:focus,.fld select:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--pri) 15%,transparent)}
+
+/* ─── FUEL CHIPS ─────────────────────────────────────────── */
+.fuel-chips{display:flex;gap:var(--s2);flex-wrap:wrap}
+.fuel-chip{
+  padding:.35rem .8rem;border-radius:var(--rf);font-size:.75rem;font-weight:700;
+  border:1.5px solid;transition:all .18s;
+}
+.fuel-chip.gaz{background:color-mix(in oklch,var(--fuel-g) 12%,transparent);color:var(--fuel-g);border-color:color-mix(in oklch,var(--fuel-g) 30%,transparent)}
+.fuel-chip.sp95{background:color-mix(in oklch,var(--fuel-95) 12%,transparent);color:var(--fuel-95);border-color:color-mix(in oklch,var(--fuel-95) 30%,transparent)}
+.fuel-chip.e10{background:color-mix(in oklch,var(--fuel-e10) 12%,transparent);color:var(--fuel-e10);border-color:color-mix(in oklch,var(--fuel-e10) 30%,transparent)}
+.fuel-chip.sp98{background:color-mix(in oklch,var(--fuel-98) 12%,transparent);color:var(--fuel-98);border-color:color-mix(in oklch,var(--fuel-98) 30%,transparent)}
+.fuel-chip.gpl{background:color-mix(in oklch,var(--fuel-gpl) 12%,transparent);color:var(--fuel-gpl);border-color:color-mix(in oklch,var(--fuel-gpl) 30%,transparent)}
+.fuel-chip.e85{background:color-mix(in oklch,var(--fuel-e85) 12%,transparent);color:var(--fuel-e85);border-color:color-mix(in oklch,var(--fuel-e85) 30%,transparent)}
+
+/* ─── RANKINGS ───────────────────────────────────────────── */
+.rank-list{display:flex;flex-direction:column;gap:var(--s3)}
+.rank-item{
+  display:flex;align-items:center;gap:var(--s3);
+  padding:var(--s3) var(--s4);background:var(--sur2);
+  border-radius:var(--r3);border:1px solid var(--bor);
+  transition:transform .18s,box-shadow .18s;
+}
+.rank-item:hover{transform:translateX(3px);box-shadow:var(--sh1)}
+.rank-num{
+  width:30px;height:30px;border-radius:var(--rf);
+  background:linear-gradient(135deg,var(--pri),var(--acc));
+  color:#fff;font-family:var(--fdis);font-size:.85rem;font-weight:800;
+  display:grid;place-items:center;flex-shrink:0;
+}
+.rank-num.r2{background:linear-gradient(135deg,#64748b,#94a3b8)}
+.rank-num.r3{background:linear-gradient(135deg,#78350f,#d97706)}
+.rank-info{flex:1;min-width:0}
+.rank-name{font-weight:700;font-size:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-city{font-size:.72rem;color:var(--tx1)}
+.rank-price{font-family:var(--fdis);font-size:1rem;font-weight:800;color:var(--pri);white-space:nowrap}
+
+/* ─── STATION DETAIL ─────────────────────────────────────── */
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
+.price-chip{
+  padding:.6rem .8rem;background:var(--sur2);
+  border-radius:var(--r3);border:1px solid var(--bor);
+}
+.price-chip .f-name{font-size:.68rem;color:var(--tx1);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.1rem}
+.price-chip .f-val{font-family:var(--fdis);font-size:1rem;font-weight:800}
+.cheapest .price-chip{border-color:var(--ok);background:color-mix(in oklch,var(--ok) 8%,var(--sur2))}
+
+/* ─── COMMENTS ───────────────────────────────────────────── */
+.comment-list{display:flex;flex-direction:column;gap:var(--s3)}
+.comment{
+  padding:var(--s4);background:var(--sur2);border-radius:var(--r3);
+  border:1px solid var(--bor);
+  animation:slideIn .25s cubic-bezier(.16,1,.3,1);
+}
+.comment-top{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);margin-bottom:.4rem}
+.comment-author{font-weight:700;font-size:var(--ts)}
+.comment-station{font-size:.72rem;color:var(--tx1)}
+.comment-body{font-size:var(--ts);color:var(--tx0);line-height:1.5}
+
+/* ─── ADMIN ──────────────────────────────────────────────── */
+.admin-item{
+  padding:var(--s4);background:var(--sur2);
+  border-radius:var(--r4);border:1px solid var(--bor);
+  animation:slideIn .25s cubic-bezier(.16,1,.3,1);
+}
+.admin-item h3{font-size:var(--ts);font-weight:700;margin-bottom:.2rem}
+.admin-btns{display:flex;gap:var(--s2);margin-top:var(--s3)}
+.log-item{
+  display:flex;gap:var(--s3);align-items:flex-start;
+  padding:.6rem .8rem;background:var(--sur2);border-radius:var(--r3);
+  border-left:3px solid var(--pri);
+}
+.log-dot{width:8px;height:8px;border-radius:50%;background:var(--pri);flex-shrink:0;margin-top:.35rem}
+.log-msg{font-size:var(--ts);flex:1}
+.log-time{font-size:.68rem;color:var(--tx2);white-space:nowrap}
+
+/* ─── FORMS ──────────────────────────────────────────────── */
+.form-grid{display:flex;flex-direction:column;gap:var(--s4)}
+.fld textarea{
+  min-height:90px;resize:vertical;
+  background:var(--sur2);border:1.5px solid var(--bor);padding:.6rem .85rem;
+  border-radius:var(--r3);color:var(--tx0);font-size:var(--ts);
+}
+.fld textarea:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--pri) 15%,transparent)}
+
+/* ─── BADGES ─────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:.3rem .7rem;border-radius:var(--rf);font-size:.72rem;font-weight:700}
+.badge-pri{background:var(--pris);color:var(--pri)}
+.badge-acc{background:var(--accS);color:var(--acc)}
+.badge-ok{background:color-mix(in oklch,var(--ok) 12%,transparent);color:var(--ok)}
+.badge-warn{background:color-mix(in oklch,var(--warn) 12%,transparent);color:var(--warn)}
+.badge-err{background:color-mix(in oklch,var(--err) 12%,transparent);color:var(--err)}
+
+/* ─── TOAST ──────────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:var(--s5);left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--tx0);color:var(--txi);padding:.7rem 1.3rem;
+  border-radius:var(--rf);font-size:var(--ts);font-weight:600;
+  box-shadow:var(--sh2);opacity:0;transition:all .3s cubic-bezier(.16,1,.3,1);
+  pointer-events:none;z-index:9999;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ─── VIEWS ──────────────────────────────────────────────── */
+.view{display:none;flex-direction:column;gap:var(--s6);animation:fadeIn .22s ease}
+.view.active{display:flex}
+
+/* ─── AUTH GRID ──────────────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:var(--s6);align-items:start}
+
+/* ─── SESSION PROFILE CARD ───────────────────────────────── */
+.profile-card{display:flex;flex-direction:column;gap:var(--s3)}
+.profile-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--div)}
+.profile-row:last-child{border-bottom:none}
+.profile-key{font-size:var(--ts);color:var(--tx1)}
+.profile-val{font-weight:700;font-size:var(--ts)}
+
+/* ─── MOBILE NAV ─────────────────────────────────────────── */
+.mob-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--sur);border-top:1px solid var(--bor);
+  padding:var(--s2) var(--s4) max(var(--s2),env(safe-area-inset-bottom));
+  z-index:100;backdrop-filter:blur(16px);
+  grid-template-columns:repeat(4,1fr);gap:var(--s1);
+}
+.mob-btn{
+  display:flex;flex-direction:column;align-items:center;gap:.25rem;
+  padding:.5rem .25rem;border-radius:var(--r3);color:var(--tx2);
+  font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+  transition:all .2s;width:100%;
+}
+.mob-btn .mico{font-size:1.3rem}
+.mob-btn.active{color:var(--pri)}
+.mob-btn.active .mico{transform:scale(1.15)}
+
+/* ─── ANIMATIONS ─────────────────────────────────────────── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.kpi-value{animation:countUp .5s cubic-bezier(.16,1,.3,1) both}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:1100px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .mob-nav{display:grid}
+  .main{padding:var(--s4);padding-bottom:calc(80px + var(--s4))}
+  .map-wrap{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr}
+  #map{height:50vw;min-height:260px}
+}
+@media(max-width:680px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpis .kpi:last-child{grid-column:1/-1}
+  .filters{flex-direction:column}
+  .page-title{font-size:1.3rem}
+  .two-col{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" aria-label="CrazyFuel logo">
-          <path d="M18 50V19c0-2 2-4 4-4h16c2 0 4 2 4 4v31"/>
-          <path d="M42 24h7c3 0 5 2 5 5v21"/>
-          <path d="M12 50h40"/>
-          <path d="M28 22h4M28 30h4"/>
-          <path d="M49 33c-4 3-5 7-2 11 1-3 4-4 5-8 1-2 0-4-3-6Z" fill="currentColor" stroke="none"/>
+<div class="shell">
+
+  <!-- SIDEBAR DESKTOP -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v11"/>
+          <path d="M14 11h3a2 2 0 0 1 2 2v6"/>
+          <line x1="2" y1="19" x2="22" y2="19"/>
+          <path d="M18 13c-1.5 1-2 3-1 5 .5-1 1.5-1.5 2-3 .4-1-.1-1.8-1-2Z" fill="currentColor" stroke="none"/>
         </svg>
+      </div>
+      <div>
+        <div class="brand-name">CrazyFuel</div>
+        <div class="brand-tag">Prix carburants France</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-view="mapView">
+        <span class="nav-ico"><span style="font-size:1rem">🗺️</span></span>
+        <span>Carte &amp; tendances</span>
+      </button>
+      <button class="nav-btn" data-view="authView">
+        <span class="nav-ico"><span style="font-size:1rem">👤</span></span>
+        <span>Mon compte</span>
+      </button>
+      <button class="nav-btn" data-view="communityView">
+        <span class="nav-ico"><span style="font-size:1rem">💬</span></span>
+        <span>Communauté</span>
+      </button>
+      <button class="nav-btn" data-view="adminView">
+        <span class="nav-ico"><span style="font-size:1rem">🛡️</span></span>
+        <span>Admin</span>
+      </button>
+    </nav>
+
+    <div class="fuel-pref-card">
+      <div class="label">Carburant préféré</div>
+      <div class="value" id="sidebarFuel">SP95-E10</div>
+      <div style="font-size:.72rem;color:var(--tx1);margin-top:.4rem">Pilote le Top 3 national &amp; proximité</div>
+    </div>
+
+    <div class="theme-row">
+      <span class="theme-label">Mode sombre</span>
+      <label class="ios-toggle" aria-label="Basculer mode sombre">
+        <input type="checkbox" id="themeChk"/>
+        <div class="ios-track"></div>
+        <div class="ios-knob">
+          <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+      </label>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- VUE CARTE -->
+    <section id="mapView" class="view active">
+      <div class="page-header">
         <div>
-          <div class="brand-title">CrazyFuel</div>
-          <div class="brand-sub">France fuel map</div>
+          <h1 class="page-title">Prix carburants <span style="color:var(--pri)">temps réel</span></h1>
+          <p class="page-sub">Consultez les prix à la pompe sur toute la France. Filtrez, comparez, signalez une erreur.</p>
+        </div>
+        <div class="acts">
+          <button class="btn btn-pri" id="locateBtn">📍 Ma position</button>
+          <button class="btn" id="seedBtn">🔄 Démo</button>
         </div>
       </div>
 
-      <nav class="nav">
-        <button class="active" data-view-target="mapView">🗺️ Carte &amp; tendances</button>
-        <button data-view-target="authView">👤 Compte utilisateur</button>
-        <button data-view-target="communityView">💬 Communauté</button>
-        <button data-view-target="adminView">🛡️ Dashboard admin</button>
-      </nav>
-
-      <div class="sidebar-card">
-        <div class="tiny">Carburant préféré</div>
-        <strong id="profileFuelLabel">SP95-E10</strong>
-        <div class="tiny">Pilote les classements Top 3 national et proximité.</div>
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-label">Stations</div><div class="kpi-value" id="stationCount">0</div><div class="kpi-sub">en France</div></div>
+        <div class="kpi"><div class="kpi-label">En attente</div><div class="kpi-value" id="pendingCount">0</div><div class="kpi-sub">contributions</div></div>
+        <div class="kpi"><div class="kpi-label">Commentaires</div><div class="kpi-value" id="commentCount">0</div><div class="kpi-sub">validés</div></div>
       </div>
 
-      <div class="sidebar-card">
-        <button class="btn ghost" id="themeToggle" style="padding:.6rem .8rem">☀️ / 🌙 Clair / Sombre</button>
-      </div>
-    </aside>
-
-    <main class="main">
-
-      <!-- VUE CARTE -->
-      <section id="mapView" class="view">
-        <div class="topbar">
-          <div class="heading">
-            <h1>Prix carburants — temps réel</h1>
-            <p>Visualisez les prix de toutes les stations françaises sur une carte interactive. Filtrez par carburant, signalez une erreur ou proposez une correction. Chaque contribution est validée avant publication.</p>
+      <div class="map-wrap">
+        <div class="card" style="padding:var(--s4)">
+          <div class="filters">
+            <div class="fld"><label>Carburant</label><select id="fuelFilter"></select></div>
+            <div class="fld"><label>Recherche</label><input id="searchFilter" placeholder="Paris, Total…"/></div>
+            <div class="fld"><label>Prix max €/L</label><input id="maxPriceFilter" type="number" step="0.001" placeholder="2.000"/></div>
+            <div class="fld"><label>Trier</label><select id="sortFilter"><option value="price">Prix ↑</option><option value="distance">Distance</option><option value="name">Nom A→Z</option></select></div>
           </div>
-          <div class="actions">
-            <button class="btn primary" id="locateBtn">📍 Ma position</button>
-            <button class="btn" id="seedBtn">🔄 Recharger la démo</button>
-          </div>
+          <div id="map"></div>
         </div>
 
-        <div class="hero-note">
-          <div class="inline">
-            <span class="badge">Top 3 national</span>
-            <span class="badge">Top 3 proximité</span>
-            <span class="badge">Corrections validées admin</span>
-            <span class="badge">6 carburants</span>
-          </div>
-        </div>
-
-        <div class="stats">
-          <article class="metric-card"><div class="tiny">Stations suivies</div><strong id="stationCount">0</strong></article>
-          <article class="metric-card"><div class="tiny">En attente de validation</div><strong id="pendingCount">0</strong></article>
-          <article class="metric-card"><div class="tiny">Commentaires publiés</div><strong id="commentCount">0</strong></article>
-        </div>
-
-        <div class="dashboard-grid">
-          <article class="panel">
-            <div class="section-title"><h2>Carte interactive</h2><span class="tiny">Leaflet + OpenStreetMap</span></div>
-            <div class="filters">
-              <div class="field"><label for="fuelFilter">Carburant</label><select id="fuelFilter"></select></div>
-              <div class="field"><label for="searchFilter">Ville ou enseigne</label><input id="searchFilter" placeholder="Paris, Total, Leclerc…" /></div>
-              <div class="field"><label for="maxPriceFilter">Prix max €/L</label><input id="maxPriceFilter" type="number" step="0.001" placeholder="2.000" /></div>
-              <div class="field"><label for="sortFilter">Trier par</label><select id="sortFilter"><option value="price">Prix croissant</option><option value="distance">Distance</option><option value="name">Nom</option></select></div>
+        <div style="display:flex;flex-direction:column;gap:var(--s5)">
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title">🏆 Top 3 France</span>
+              <span class="badge badge-pri" id="nationalFuelBadge">SP95-E10</span>
             </div>
-            <div id="map"></div>
-          </article>
-
-          <div class="list">
-            <article class="panel">
-              <div class="section-title"><h2>🏆 Top 3 France</h2><span class="tiny" id="nationalFuelLabel"></span></div>
-              <div id="nationalTop" class="list"></div>
-            </article>
-            <article class="panel">
-              <div class="section-title"><h2>📍 Top 3 proximité</h2><span class="tiny">Votre position</span></div>
-              <div id="nearbyTop" class="list"></div>
-            </article>
-            <article class="panel">
-              <div class="section-title"><h2>Station sélectionnée</h2></div>
-              <div id="stationDetails" class="muted">Cliquez sur un marqueur pour voir les prix et commentaires validés.</div>
-            </article>
+            <div class="rank-list" id="nationalTop"></div>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title">📍 Top 3 proxi</span>
+              <span class="badge badge-acc">Autour de vous</span>
+            </div>
+            <div class="rank-list" id="nearbyTop"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Station</span></div>
+            <div id="stationDetails" style="color:var(--tx1);font-size:var(--ts)">Cliquez un marqueur sur la carte.</div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- VUE COMPTE -->
-      <section id="authView" class="view hidden">
-        <div class="topbar">
-          <div class="heading">
-            <h1>Compte &amp; préférences</h1>
-            <p>Créez un compte pour commenter les stations et proposer des corrections de prix. Votre carburant préféré pilote automatiquement les classements personnalisés.</p>
-          </div>
+    <!-- VUE COMPTE -->
+    <section id="authView" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Mon <span style="color:var(--pri)">compte</span></h1>
+          <p class="page-sub">Créez votre profil pour commenter et proposer des corrections.</p>
         </div>
-        <div class="auth-grid">
-          <article class="panel">
-            <div class="section-title"><h2>Créer un compte</h2><span class="tiny">Démo front</span></div>
-            <form id="registerForm" class="list">
-              <div class="field"><label>Nom</label><input name="name" required placeholder="Camille" /></div>
-              <div class="field"><label>Email</label><input name="email" type="email" required placeholder="camille@email.fr" /></div>
-              <div class="field"><label>Mot de passe</label><input name="password" type="password" required placeholder="········" /></div>
-              <div class="field"><label>Carburant préféré</label><select name="preferredFuel" id="profileFuelSelect"></select></div>
-              <button class="btn primary" type="submit">Créer le compte</button>
-            </form>
-          </article>
-          <article class="panel">
-            <div class="section-title"><h2>Session courante</h2></div>
-            <div class="list" id="sessionCard"></div>
-          </article>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Créer un compte</span><span class="badge badge-pri">Démo</span></div>
+          <form id="registerForm" class="form-grid">
+            <div class="fld"><label>Nom</label><input name="name" required placeholder="Camille"/></div>
+            <div class="fld"><label>Email</label><input name="email" type="email" required placeholder="camille@email.fr"/></div>
+            <div class="fld"><label>Mot de passe</label><input name="password" type="password" required placeholder="········"/></div>
+            <div class="fld"><label>Carburant préféré</label><select name="preferredFuel" id="profileFuelSelect"></select></div>
+            <button class="btn btn-pri" type="submit">Créer le compte ✓</button>
+          </form>
         </div>
-      </section>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Session</span></div>
+          <div id="sessionCard" class="profile-card"></div>
+        </div>
+      </div>
+    </section>
 
-      <!-- VUE COMMUNAUTE -->
-      <section id="communityView" class="view hidden">
-        <div class="topbar">
-          <div class="heading">
-            <h1>Commentaires &amp; corrections</h1>
-            <p>Les membres peuvent commenter une station et proposer un nouveau prix si les données affichées sont incorrectes. Chaque contribution passe en modération avant publication.</p>
-          </div>
+    <!-- VUE COMMUNAUTE -->
+    <section id="communityView" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Comm<span style="color:var(--pri)">unauté</span></h1>
+          <p class="page-sub">Commentez, corrigez les prix. Chaque contribution est validée par un admin.</p>
         </div>
-        <div class="auth-grid">
-          <article class="panel">
-            <div class="section-title"><h2>Publier un commentaire</h2><span class="tiny">Visible après validation</span></div>
-            <form id="commentForm" class="list">
-              <div class="field"><label>Station</label><select id="commentStation"></select></div>
-              <div class="field"><label>Commentaire</label><textarea id="commentText" placeholder="Prix correct ce matin, accès facile, service rapide…"></textarea></div>
-              <button class="btn primary" type="submit">Envoyer en modération</button>
-            </form>
-          </article>
-          <article class="panel">
-            <div class="section-title"><h2>Proposer une correction</h2><span class="tiny">Validation obligatoire</span></div>
-            <form id="priceProposalForm" class="list">
-              <div class="field"><label>Station</label><select id="proposalStation"></select></div>
-              <div class="field"><label>Carburant</label><select id="proposalFuel"></select></div>
-              <div class="field"><label>Nouveau prix</label><input id="proposalPrice" type="number" step="0.001" placeholder="1.739" /></div>
-              <div class="field"><label>Justification</label><textarea id="proposalReason" placeholder="Constaté à la pompe aujourd'hui à 18h40."></textarea></div>
-              <button class="btn primary" type="submit">Proposer la correction</button>
-            </form>
-          </article>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">💬 Commenter</span><span class="badge badge-warn">Modéré</span></div>
+          <form id="commentForm" class="form-grid">
+            <div class="fld"><label>Station</label><select id="commentStation"></select></div>
+            <div class="fld"><label>Commentaire</label><textarea id="commentText" placeholder="Prix corrects ce matin, pompe propre…"></textarea></div>
+            <button class="btn btn-pri" type="submit">Envoyer →</button>
+          </form>
         </div>
-        <article class="panel">
-          <div class="section-title"><h2>Commentaires validés</h2><span class="tiny">Retours récents</span></div>
-          <div id="approvedComments" class="list"></div>
-        </article>
-      </section>
+        <div class="card">
+          <div class="card-head"><span class="card-title">✏️ Corriger un prix</span><span class="badge badge-warn">Modéré</span></div>
+          <form id="priceProposalForm" class="form-grid">
+            <div class="fld"><label>Station</label><select id="proposalStation"></select></div>
+            <div class="fld"><label>Carburant</label><select id="proposalFuel"></select></div>
+            <div class="fld"><label>Nouveau prix (€/L)</label><input id="proposalPrice" type="number" step="0.001" placeholder="1.739"/></div>
+            <div class="fld"><label>Justification</label><textarea id="proposalReason" placeholder="Constaté à la pompe ce soir…"></textarea></div>
+            <button class="btn btn-pri" type="submit">Proposer →</button>
+          </form>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Commentaires validés</span><span class="card-hint" id="commCount2">—</span></div>
+        <div class="comment-list" id="approvedComments"></div>
+      </div>
+    </section>
 
-      <!-- VUE ADMIN -->
-      <section id="adminView" class="view hidden">
-        <div class="topbar">
-          <div class="heading">
-            <h1>Dashboard administrateur</h1>
-            <p>Validez ou refusez les commentaires et corrections de prix proposés par la communauté. Chaque approbation met immédiatement à jour la carte et les classements.</p>
-          </div>
+    <!-- VUE ADMIN -->
+    <section id="adminView" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard <span style="color:var(--pri)">Admin</span></h1>
+          <p class="page-sub">Modérez les contributions. Chaque approbation met la carte à jour instantanément.</p>
         </div>
-        <div class="admin-grid">
-          <article class="panel">
-            <div class="section-title"><h2>File de modération</h2><span class="tiny">En attente</span></div>
-            <div id="adminQueue" class="queue"></div>
-          </article>
-          <article class="panel">
-            <div class="section-title"><h2>Journal d'activité</h2><span class="tiny">Historique</span></div>
-            <div id="activityLog" class="list"></div>
-          </article>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">File de modération</span><span class="badge badge-warn" id="queueCount">0</span></div>
+          <div id="adminQueue" style="display:flex;flex-direction:column;gap:var(--s3)"></div>
         </div>
-      </section>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Journal d'activité</span></div>
+          <div id="activityLog" style="display:flex;flex-direction:column;gap:var(--s2)"></div>
+        </div>
+      </div>
+    </section>
 
-      <div class="footer-note">CrazyFuel — Prototype produit front complet : Leaflet, profils, modération, corrections de prix, top 3 national &amp; proximité, mode sombre.</div>
-    </main>
+    <div style="font-size:.7rem;color:var(--tx2);padding:var(--s3) 0;border-top:1px solid var(--div);margin-top:auto">CrazyFuel © 2026 — Données démo. Connecter data.gouv.fr pour les prix en temps réel.</div>
+  </main>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mob-nav">
+  <button class="mob-btn active" data-view="mapView"><span class="mico">🗺️</span><span>Carte</span></button>
+  <button class="mob-btn" data-view="authView"><span class="mico">👤</span><span>Compte</span></button>
+  <button class="mob-btn" data-view="communityView"><span class="mico">💬</span><span>Communauté</span></button>
+  <button class="mob-btn" data-view="adminView"><span class="mico">🛡️</span><span>Admin</span></button>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const FUELS=['Gazole','SP95','SP95-E10','SP98','GPLc','E85'];
+const FUEL_COLORS={Gazole:'#2563eb',SP95:'#16a34a','SP95-E10':'#15803d',SP98:'#7c3aed',GPLc:'#0891b2',E85:'#ca8a04'};
+
+const S={
+  user:null,fuel:'SP95-E10',pos:{lat:46.60,lng:1.88},
+  stations:[],comments:[],proposals:[],activity:[],
+  selId:null,map:null,markers:[]
+};
+
+const DEMO_STATIONS=[
+  {id:1,name:'TotalEnergies Rivoli',city:'Paris',lat:48.855,lng:2.357,addr:'12 Rue de Rivoli',prices:{Gazole:1.702,SP95:1.829,'SP95-E10':1.781,SP98:1.902,GPLc:0.992,E85:0.869}},
+  {id:2,name:'E.Leclerc Frouard',city:'Frouard',lat:48.761,lng:6.132,addr:'Zone commerciale Grand Air',prices:{Gazole:1.621,SP95:1.748,'SP95-E10':1.709,SP98:1.832,GPLc:0.954,E85:0.792}},
+  {id:3,name:'Carrefour Mérignac',city:'Mérignac',lat:44.842,lng:-0.667,addr:'Avenue de la Somme',prices:{Gazole:1.644,SP95:1.765,'SP95-E10':1.721,SP98:1.845,GPLc:0.979,E85:0.801}},
+  {id:4,name:'Intermarché Brest',city:'Brest',lat:48.390,lng:-4.486,addr:'Boulevard de Plymouth',prices:{Gazole:1.633,SP95:1.759,'SP95-E10':1.714,SP98:1.838,GPLc:0.966,E85:0.795}},
+  {id:5,name:'Avia Nice Ouest',city:'Nice',lat:43.665,lng:7.215,addr:'Route de Grenoble',prices:{Gazole:1.712,SP95:1.852,'SP95-E10':1.807,SP98:1.931,GPLc:1.005,E85:0.884}},
+  {id:6,name:'Auchan Noyelles',city:'Noyelles-Godault',lat:50.417,lng:2.995,addr:'Centre commercial',prices:{Gazole:1.614,SP95:1.739,'SP95-E10':1.698,SP98:1.821,GPLc:0.949,E85:0.785}},
+  {id:7,name:'Super U Nantes Erdre',city:'Nantes',lat:47.249,lng:-1.506,addr:'Route de Saint-Joseph',prices:{Gazole:1.648,SP95:1.771,'SP95-E10':1.725,SP98:1.849,GPLc:0.973,E85:0.806}},
+  {id:8,name:'Casino Lyon Sud',city:'Lyon',lat:45.721,lng:4.824,addr:'Avenue du Gén. de Gaulle',prices:{Gazole:1.661,SP95:1.788,'SP95-E10':1.734,SP98:1.861,GPLc:0.981,E85:0.814}},
+  {id:9,name:'Leclerc Montpellier',city:'Montpellier',lat:43.612,lng:3.877,addr:'Route de Carnon',prices:{Gazole:1.629,SP95:1.753,'SP95-E10':1.711,SP98:1.834,GPLc:0.961,E85:0.799}},
+  {id:10,name:'U Express Lille Centre',city:'Lille',lat:50.633,lng:3.059,addr:'Rue Nationale',prices:{Gazole:1.658,SP95:1.781,'SP95-E10':1.736,SP98:1.858,GPLc:0.977,E85:0.809}}
+];
+
+function toast(msg,d=2500){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),d);
+}
+
+function km(a,b,c,d){const R=6371,dLa=(c-a)*Math.PI/180,dLo=(d-b)*Math.PI/180,x=Math.sin(dLa/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLo/2)**2;return+(2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))).toFixed(1);}
+
+function fuelClass(f){return{Gazole:'gaz',SP95:'sp95','SP95-E10':'e10',SP98:'sp98',GPLc:'gpl',E85:'e85'}[f]||'gaz';}
+
+function resetDemo(){
+  S.stations=JSON.parse(JSON.stringify(DEMO_STATIONS));
+  S.comments=[
+    {id:1,stId:2,author:'Lucas',text:'Prix conformes ce matin, accès facile.',status:'approved',at:Date.now()},
+    {id:2,stId:1,author:'Nora',text:'Beaucoup de monde à midi, mais affichage correct.',status:'pending',at:Date.now()}
+  ];
+  S.proposals=[{id:1,stId:6,fuel:'SP95-E10',price:1.689,reason:'Photo ticket 18h20',author:'Mathis',status:'pending',at:Date.now()}];
+  S.activity=[{id:1,msg:'Démo rechargée',at:new Date().toLocaleTimeString('fr-FR')}];
+  S.selId=null;
+  renderAll();
+  toast('✅ Données démo rechargées');
+}
+
+function selects(){
+  const fH=FUELS.map(f=>`<option value="${f}">${f}</option>`).join('');
+  ['fuelFilter','profileFuelSelect','proposalFuel'].forEach(id=>{const e=document.getElementById(id);if(e){e.innerHTML=fH;e.value=S.fuel;}});
+  const stH=S.stations.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  ['commentStation','proposalStation'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=stH;});
+}
+
+function filtered(){
+  const f=document.getElementById('fuelFilter')?.value||S.fuel;
+  const q=(document.getElementById('searchFilter')?.value||'').toLowerCase();
+  const mx=parseFloat(document.getElementById('maxPriceFilter')?.value||'999');
+  const so=document.getElementById('sortFilter')?.value||'price';
+  return S.stations.filter(s=>(q?`${s.name} ${s.city}`.toLowerCase().includes(q):true)&&s.prices[f]<=mx)
+    .sort((a,b)=>so==='name'?a.name.localeCompare(b.name):so==='distance'?km(S.pos.lat,S.pos.lng,a.lat,a.lng)-km(S.pos.lat,S.pos.lng,b.lat,b.lng):a.prices[f]-b.prices[f]);
+}
+
+function makeIcon(color){
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='30' height='38' viewBox='0 0 30 38'><path d='M15 0C7 0 0 7 0 15c0 11 15 23 15 23S30 26 30 15C30 7 23 0 15 0z' fill='${color}'/><circle cx='15' cy='15' r='6' fill='white' opacity='.9'/></svg>`;
+  return L.divIcon({html:svg,className:'',iconSize:[30,38],iconAnchor:[15,38],popupAnchor:[0,-38]});
+}
+
+function renderMap(){
+  if(!S.map){
+    S.map=L.map('map').setView([46.60,1.88],6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(S.map);
+  }
+  S.markers.forEach(m=>m.remove());S.markers=[];
+  const f=document.getElementById('fuelFilter')?.value||S.fuel;
+  const color=FUEL_COLORS[f]||'#0e737c';
+  filtered().forEach(st=>{
+    const mk=L.marker([st.lat,st.lng],{icon:makeIcon(color)}).addTo(S.map);
+    mk.bindPopup(`<strong>${st.name}</strong><br><span style='color:#666'>${st.city}</span><br>${f}: <strong style='color:${color}'>${st.prices[f].toFixed(3)} €/L</strong>`);
+    mk.on('click',()=>{S.selId=st.id;renderDetail();});
+    S.markers.push(mk);
+  });
+}
+
+function rankCard(st,f,idx,dist){
+  const cls=['','r2','r3'][idx]||'';
+  const d=dist?`${km(S.pos.lat,S.pos.lng,st.lat,st.lng)} km`:'';
+  return `<div class="rank-item"><div class="rank-num ${cls}">${idx+1}</div><div class="rank-info"><div class="rank-name">${st.name}</div><div class="rank-city">${st.city}${d?' · '+d:''}</div></div><div class="rank-price">${st.prices[f].toFixed(3)} €</div></div>`;
+}
+
+function renderRankings(){
+  const f=S.fuel;
+  document.getElementById('sidebarFuel').textContent=f;
+  document.getElementById('nationalFuelBadge').textContent=f;
+  const nat=[...S.stations].sort((a,b)=>a.prices[f]-b.prices[f]).slice(0,3);
+  const near=[...S.stations].sort((a,b)=>km(S.pos.lat,S.pos.lng,a.lat,a.lng)-km(S.pos.lat,S.pos.lng,b.lat,b.lng)).slice(0,6).sort((a,b)=>a.prices[f]-b.prices[f]).slice(0,3);
+  document.getElementById('nationalTop').innerHTML=nat.map((s,i)=>rankCard(s,f,i,false)).join('');
+  document.getElementById('nearbyTop').innerHTML=near.map((s,i)=>rankCard(s,f,i,true)).join('');
+}
+
+function renderDetail(){
+  const st=S.stations.find(s=>s.id===S.selId);
+  const box=document.getElementById('stationDetails');
+  if(!st){box.innerHTML='<span style="color:var(--tx1)">Cliquez un marqueur sur la carte.</span>';return;}
+  const comms=S.comments.filter(c=>c.stId===st.id&&c.status==='approved');
+  const minP=Math.min(...Object.values(st.prices));
+  box.innerHTML=`<div style="margin-bottom:var(--s3)">
+    <div style="font-weight:800;font-size:var(--tl);font-family:var(--fdis)">${st.name}</div>
+    <div style="font-size:var(--ts);color:var(--tx1)">${st.city} · ${st.addr}</div>
   </div>
+  <div class="price-grid">${FUELS.map(f=>`<div class="price-chip${st.prices[f]===minP?' cheapest':''}"><div class="f-name">${f}</div><div class="f-val" style="color:${FUEL_COLORS[f]}">${st.prices[f].toFixed(3)} €</div></div>`).join('')}</div>
+  ${comms.length?`<div style="margin-top:var(--s4);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tx2);margin-bottom:var(--s2)">Commentaires (${comms.length})</div>${comms.map(c=>`<div style="padding:.5rem .75rem;background:var(--sur2);border-radius:var(--r3);font-size:var(--ts);margin-bottom:var(--s2)"><strong>${c.author}</strong> — ${c.text}</div>`).join('')}`:''}`;
+}
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script>
-    const fuelTypes = ['Gazole','SP95','SP95-E10','SP98','GPLc','E85'];
-    const state = {
-      currentUser: null, preferredFuel: 'SP95-E10',
-      userPosition: { lat: 48.8566, lng: 2.3522 },
-      stations: [], comments: [], proposals: [], activity: [],
-      selectedStationId: null, map: null, markers: []
-    };
+function renderSession(){
+  const box=document.getElementById('sessionCard');
+  if(!S.user){
+    box.innerHTML='<div class="profile-row"><span class="profile-key">Statut</span><span class="profile-val" style="color:var(--tx1)">Invité</span></div><div style="font-size:var(--ts);color:var(--tx1);margin-top:var(--s3)">Créez un compte pour commenter et proposer des corrections.</div>';
+    return;
+  }
+  box.innerHTML=`
+    <div class="profile-row"><span class="profile-key">Nom</span><span class="profile-val">${S.user.name}</span></div>
+    <div class="profile-row"><span class="profile-key">Email</span><span class="profile-val">${S.user.email}</span></div>
+    <div class="profile-row"><span class="profile-key">Carburant</span><span class="profile-val"><span class="fuel-chip ${fuelClass(S.user.fuel)}">${S.user.fuel}</span></span></div>
+    <div class="profile-row"><span class="profile-key">Rôle</span><span class="profile-val"><span class="badge badge-ok">Membre</span></span></div>`;
+}
 
-    const seedStations = [
-      { id:1, name:'TotalEnergies Rivoli', city:'Paris', lat:48.8551, lng:2.3572, address:'12 Rue de Rivoli', prices:{'Gazole':1.702,'SP95':1.829,'SP95-E10':1.781,'SP98':1.902,'GPLc':0.992,'E85':0.869}},
-      { id:2, name:'E.Leclerc Frouard', city:'Frouard', lat:48.7612, lng:6.1322, address:'Zone commerciale Grand Air', prices:{'Gazole':1.621,'SP95':1.748,'SP95-E10':1.709,'SP98':1.832,'GPLc':0.954,'E85':0.792}},
-      { id:3, name:'Carrefour Mérignac', city:'Mérignac', lat:44.8422, lng:-0.6667, address:'Avenue de la Somme', prices:{'Gazole':1.644,'SP95':1.765,'SP95-E10':1.721,'SP98':1.845,'GPLc':0.979,'E85':0.801}},
-      { id:4, name:'Intermarché Brest', city:'Brest', lat:48.3896, lng:-4.4861, address:'Boulevard de Plymouth', prices:{'Gazole':1.633,'SP95':1.759,'SP95-E10':1.714,'SP98':1.838,'GPLc':0.966,'E85':0.795}},
-      { id:5, name:'Avia Nice Ouest', city:'Nice', lat:43.6653, lng:7.2148, address:'Route de Grenoble', prices:{'Gazole':1.712,'SP95':1.852,'SP95-E10':1.807,'SP98':1.931,'GPLc':1.005,'E85':0.884}},
-      { id:6, name:'Auchan Noyelles', city:'Noyelles-Godault', lat:50.4171, lng:2.9952, address:'Centre commercial', prices:{'Gazole':1.614,'SP95':1.739,'SP95-E10':1.698,'SP98':1.821,'GPLc':0.949,'E85':0.785}},
-      { id:7, name:'Super U Nantes Erdre', city:'Nantes', lat:47.2488, lng:-1.5059, address:'Route de Saint-Joseph', prices:{'Gazole':1.648,'SP95':1.771,'SP95-E10':1.725,'SP98':1.849,'GPLc':0.973,'E85':0.806}},
-      { id:8, name:'Casino Lyon Sud', city:'Lyon', lat:45.7211, lng:4.8235, address:'Avenue du Général de Gaulle', prices:{'Gazole':1.661,'SP95':1.788,'SP95-E10':1.734,'SP98':1.861,'GPLc':0.981,'E85':0.814}},
-      { id:9, name:'Leclerc Montpellier', city:'Montpellier', lat:43.6119, lng:3.8767, address:'Route de Carnon', prices:{'Gazole':1.629,'SP95':1.753,'SP95-E10':1.711,'SP98':1.834,'GPLc':0.961,'E85':0.799}},
-      { id:10, name:'U Express Lille Centre', city:'Lille', lat:50.6333, lng:3.0586, address:'Rue Nationale', prices:{'Gazole':1.658,'SP95':1.781,'SP95-E10':1.736,'SP98':1.858,'GPLc':0.977,'E85':0.809}}
-    ];
+function renderComments(){
+  const approved=S.comments.filter(c=>c.status==='approved').sort((a,b)=>b.at-a.at);
+  const el=document.getElementById('approvedComments');
+  const c2=document.getElementById('commCount2');
+  if(c2)c2.textContent=approved.length+' publiés';
+  el.innerHTML=approved.map(c=>{
+    const st=S.stations.find(s=>s.id===c.stId);
+    return `<div class="comment"><div class="comment-top"><span class="comment-author">${c.author}</span><span class="comment-station">${st?.name||''}</span></div><div class="comment-body">${c.text}</div></div>`;
+  }).join('')||'<div style="color:var(--tx1);font-size:var(--ts)">Aucun commentaire validé pour le moment.</div>';
+}
 
-    const seedComments = [
-      { id:1, stationId:2, author:'Lucas', text:'Prix constatés conformes ce matin, station très accessible.', status:'approved', createdAt:new Date().toISOString()},
-      { id:2, stationId:1, author:'Nora', text:'Beaucoup de monde à midi mais affichage exact.', status:'pending', createdAt:new Date().toISOString()}
-    ];
-    const seedProposals = [
-      { id:1, stationId:6, fuel:'SP95-E10', proposedPrice:1.689, reason:'Photo ticket 18h20', author:'Mathis', status:'pending', createdAt:new Date().toISOString()}
-    ];
+function renderAdmin(){
+  const queue=[
+    ...S.comments.filter(c=>c.status==='pending').map(c=>({type:'comment',...c})),
+    ...S.proposals.filter(p=>p.status==='pending').map(p=>({type:'proposal',...p}))
+  ].sort((a,b)=>b.at-a.at);
+  const qc=document.getElementById('queueCount'); if(qc)qc.textContent=queue.length;
+  document.getElementById('adminQueue').innerHTML=queue.map(item=>{
+    const st=S.stations.find(s=>s.id===(item.stId||item.stId));
+    return `<div class="admin-item">
+      <div style="display:flex;gap:var(--s2);align-items:center;margin-bottom:var(--s2)">
+        <span class="badge ${item.type==='comment'?'badge-pri':'badge-acc'}">${item.type==='comment'?'Commentaire':'Correction prix'}</span>
+        <span class="badge badge-warn">En attente</span>
+      </div>
+      <h3>${st?.name||''} — ${st?.city||''}</h3>
+      <div style="font-size:.72rem;color:var(--tx1);margin-bottom:var(--s2)">Par ${item.author}</div>
+      <div style="font-size:var(--ts);padding:var(--s2) var(--s3);background:var(--bg);border-radius:var(--r3);line-height:1.5">${item.type==='comment'?item.text:`<span class="fuel-chip ${fuelClass(item.fuel)}">${item.fuel}</span> → <strong>${item.price?.toFixed(3)} €/L</strong><br><span style="font-size:.72rem;color:var(--tx1)">${item.reason}</span>`}</div>
+      <div class="admin-btns">
+        <button class="btn btn-pri" onclick="approv('${item.type}',${item.id})">✓ Approuver</button>
+        <button class="btn" style="color:var(--err);border-color:color-mix(in oklch,var(--err) 25%,var(--bor))" onclick="rejec('${item.type}',${item.id})">✕ Refuser</button>
+      </div>
+    </div>`;
+  }).join('')||'<div style="color:var(--tx1);font-size:var(--ts)">✅ Aucun élément en attente.</div>';
+  document.getElementById('activityLog').innerHTML=S.activity.map(l=>`<div class="log-item"><div class="log-dot"></div><div class="log-msg">${l.msg}</div><div class="log-time">${l.at}</div></div>`).join('');
+}
 
-    function resetDemo(){
-      state.stations = JSON.parse(JSON.stringify(seedStations));
-      state.comments = JSON.parse(JSON.stringify(seedComments));
-      state.proposals = JSON.parse(JSON.stringify(seedProposals));
-      state.activity = [{id:1, message:'Base de démonstration rechargée', at:new Date().toLocaleString('fr-FR')}];
-      state.selectedStationId = null;
-      renderAll();
-    }
+function counters(){
+  document.getElementById('stationCount').textContent=S.stations.length;
+  document.getElementById('pendingCount').textContent=S.comments.filter(c=>c.status==='pending').length+S.proposals.filter(p=>p.status==='pending').length;
+  document.getElementById('commentCount').textContent=S.comments.filter(c=>c.status==='approved').length;
+}
 
-    function hydrateSelects(){
-      const fuelHtml = fuelTypes.map(f=>`<option value="${f}">${f}</option>`).join('');
-      ['fuelFilter','profileFuelSelect','proposalFuel'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=fuelHtml; });
-      const stOpts = state.stations.map(s=>`<option value="${s.id}">${s.name} — ${s.city}</option>`).join('');
-      ['commentStation','proposalStation'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=stOpts; });
-      const fuelEl=document.getElementById('fuelFilter'); if(fuelEl) fuelEl.value=state.preferredFuel;
-      const pfEl=document.getElementById('profileFuelSelect'); if(pfEl) pfEl.value=state.preferredFuel;
-    }
+function pushLog(msg){S.activity.unshift({id:Date.now(),msg,at:new Date().toLocaleTimeString('fr-FR')});S.activity=S.activity.slice(0,20);}
 
-    function distKm(a,b,c,d){const R=6371,dLat=(c-a)*Math.PI/180,dLng=(d-b)*Math.PI/180,x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLng/2)**2;return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+function approv(type,id){
+  if(type==='comment'){const c=S.comments.find(x=>x.id===id);if(!c)return;c.status='approved';pushLog(`✅ Commentaire approuvé — ${S.stations.find(s=>s.id===c.stId)?.name}`);toast('Commentaire approuvé !');}
+  else{const p=S.proposals.find(x=>x.id===id);if(!p)return;p.status='approved';const st=S.stations.find(s=>s.id===p.stId);if(st)st.prices[p.fuel]=p.price;pushLog(`⛽ Prix ${p.fuel} mis à jour — ${st?.name}`);toast('Prix mis à jour sur la carte !');}
+  renderAll();
+}
+function rejec(type,id){
+  if(type==='comment'){const c=S.comments.find(x=>x.id===id);if(!c)return;c.status='rejected';pushLog(`❌ Commentaire refusé`);}
+  else{const p=S.proposals.find(x=>x.id===id);if(!p)return;p.status='rejected';pushLog(`❌ Correction refusée`);}
+  toast('Contribution refusée.');renderAll();
+}
+window.approv=approv;window.rejec=rejec;
 
-    function getFiltered(){
-      const fuel=(document.getElementById('fuelFilter')||{}).value||state.preferredFuel;
-      const search=((document.getElementById('searchFilter')||{}).value||'').toLowerCase();
-      const maxP=parseFloat(((document.getElementById('maxPriceFilter')||{}).value)||'999');
-      const sort=((document.getElementById('sortFilter')||{}).value)||'price';
-      return state.stations.filter(st=>{
-        const matchS=!search||`${st.name} ${st.city}`.toLowerCase().includes(search);
-        return matchS && st.prices[fuel]<=maxP;
-      }).sort((a,b)=>{
-        if(sort==='name') return a.name.localeCompare(b.name);
-        if(sort==='distance') return distKm(state.userPosition.lat,state.userPosition.lng,a.lat,a.lng)-distKm(state.userPosition.lat,state.userPosition.lng,b.lat,b.lng);
-        return a.prices[fuel]-b.prices[fuel];
-      });
-    }
+function renderAll(){selects();counters();renderMap();renderRankings();renderDetail();renderSession();renderComments();renderAdmin();}
 
-    function renderMap(){
-      if(!state.map){
-        state.map=L.map('map').setView([46.603354,1.888334],6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(state.map);
-      }
-      state.markers.forEach(m=>m.remove()); state.markers=[];
-      const fuel=(document.getElementById('fuelFilter')||{}).value||state.preferredFuel;
-      getFiltered().forEach(station=>{
-        const marker=L.marker([station.lat,station.lng]).addTo(state.map);
-        marker.bindPopup(`<strong>${station.name}</strong><br>${station.city}<br>${fuel}: <strong>${station.prices[fuel].toFixed(3)} €/L</strong>`);
-        marker.on('click',()=>{state.selectedStationId=station.id;renderStationDetails();});
-        state.markers.push(marker);
-      });
-    }
+// — VIEW SWITCH
+function switchView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('[data-view]').forEach(b=>{
+    b.classList.toggle('active',b.dataset.view===id);
+  });
+  if(id==='mapView'&&S.map)setTimeout(()=>S.map.invalidateSize(),60);
+}
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
 
-    function stCard(station,fuel,withDist=false){
-      const dist=distKm(state.userPosition.lat,state.userPosition.lng,station.lat,station.lng);
-      return `<article class="station-card"><h3>${station.name}</h3><div class="muted">${station.city} · ${station.address}</div><div class="price-grid"><div class="price-chip"><span>${fuel}</span><strong>${station.prices[fuel].toFixed(3)} €/L</strong></div><div class="price-chip"><span>${withDist?'Distance':'Commentaires'}</span><strong>${withDist?dist.toFixed(1)+' km':state.comments.filter(c=>c.stationId===station.id&&c.status==='approved').length}</strong></div></div></article>`;
-    }
+// — FILTERS
+['fuelFilter','searchFilter','maxPriceFilter','sortFilter'].forEach(id=>{
+  const e=document.getElementById(id);if(!e)return;
+  e.addEventListener('input',()=>{renderMap();renderDetail();});
+});
+document.getElementById('fuelFilter')?.addEventListener('change',()=>renderRankings());
 
-    function renderRankings(){
-      const fuel=state.preferredFuel;
-      document.getElementById('profileFuelLabel').textContent=fuel;
-      document.getElementById('nationalFuelLabel').textContent=fuel;
-      const nat=[...state.stations].sort((a,b)=>a.prices[fuel]-b.prices[fuel]).slice(0,3);
-      const nearby=[...state.stations].sort((a,b)=>distKm(state.userPosition.lat,state.userPosition.lng,a.lat,a.lng)-distKm(state.userPosition.lat,state.userPosition.lng,b.lat,b.lng)).slice(0,6).sort((a,b)=>a.prices[fuel]-b.prices[fuel]).slice(0,3);
-      document.getElementById('nationalTop').innerHTML=nat.map(s=>stCard(s,fuel)).join('');
-      document.getElementById('nearbyTop').innerHTML=nearby.map(s=>stCard(s,fuel,true)).join('');
-    }
+// — PROFILE FUEL
+document.getElementById('profileFuelSelect')?.addEventListener('change',e=>{
+  S.fuel=e.target.value;if(S.user)S.user.fuel=e.target.value;
+  document.getElementById('sidebarFuel').textContent=S.fuel;
+  renderRankings();
+});
 
-    function renderStationDetails(){
-      const station=state.stations.find(s=>s.id===state.selectedStationId);
-      if(!station){document.getElementById('stationDetails').innerHTML='<span class="muted">Cliquez sur un marqueur pour voir les détails.</span>';return;}
-      const comms=state.comments.filter(c=>c.stationId===station.id&&c.status==='approved');
-      document.getElementById('stationDetails').innerHTML=`
-        <div class="station-card"><h3>${station.name}</h3><div class="muted">${station.city} · ${station.address}</div>
-        <div class="price-grid">${fuelTypes.map(f=>`<div class="price-chip"><span>${f}</span><strong>${station.prices[f].toFixed(3)} €/L</strong></div>`).join('')}</div>
-        <div class="section-title" style="margin-top:1rem"><h2>Commentaires validés</h2><span class="tiny">${comms.length}</span></div>
-        <div class="list">${comms.length?comms.map(c=>`<div class="comment-card"><div class="comment-meta"><strong>${c.author}</strong><span class="tiny">${new Date(c.createdAt).toLocaleString('fr-FR')}</span></div>${c.text}</div>`).join(''):'<div class="muted">Aucun commentaire validé pour cette station.</div>'}</div></div>`;
-    }
+// — REGISTER
+document.getElementById('registerForm').addEventListener('submit',e=>{
+  e.preventDefault();const fd=new FormData(e.target);
+  S.user={name:fd.get('name'),email:fd.get('email'),fuel:fd.get('preferredFuel')};
+  S.fuel=S.user.fuel;
+  pushLog(`👤 Nouveau compte : ${S.user.name}`);
+  e.target.reset();toast(`Bienvenue, ${S.user.name} ! ✨`);
+  renderAll();
+});
 
-    function renderSession(){
-      const node=document.getElementById('sessionCard');
-      if(!state.currentUser){node.innerHTML=`<div class="comment-card"><strong>Invité</strong><div class="muted">Créez un compte pour proposer des corrections et publier des commentaires.</div></div>`;return;}
-      node.innerHTML=`<div class="comment-card"><strong>${state.currentUser.name}</strong><div class="muted">${state.currentUser.email}</div></div><div class="comment-card"><div class="tiny">Carburant préféré</div><strong>${state.currentUser.preferredFuel}</strong></div><div class="comment-card"><div class="tiny">Rôle</div><strong>${state.currentUser.role}</strong></div>`;
-    }
+// — COMMENT
+document.getElementById('commentForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  if(!S.user)return toast('⚠️ Créez un compte d'abord.');
+  const txt=document.getElementById('commentText').value.trim();if(!txt)return;
+  S.comments.unshift({id:Date.now(),stId:Number(document.getElementById('commentStation').value),author:S.user.name,text:txt,status:'pending',at:Date.now()});
+  pushLog(`💬 Commentaire soumis par ${S.user.name}`);
+  document.getElementById('commentText').value='';
+  toast('Commentaire envoyé en modération !');
+  renderAll();
+});
 
-    function renderComments(){
-      const approved=state.comments.filter(c=>c.status==='approved').sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-      document.getElementById('approvedComments').innerHTML=approved.map(c=>{
-        const st=state.stations.find(s=>s.id===c.stationId);
-        return `<article class="comment-card"><div class="comment-meta"><strong>${c.author}</strong><span class="tiny">${st.name} · ${st.city}</span></div>${c.text}</article>`;
-      }).join('')||'<div class="muted">Aucun commentaire validé pour le moment.</div>';
-    }
+// — PRICE PROPOSAL
+document.getElementById('priceProposalForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  if(!S.user)return toast('⚠️ Créez un compte d'abord.');
+  const pr=parseFloat(document.getElementById('proposalPrice').value);
+  const re=document.getElementById('proposalReason').value.trim();
+  if(!pr||!re)return;
+  S.proposals.unshift({id:Date.now(),stId:Number(document.getElementById('proposalStation').value),fuel:document.getElementById('proposalFuel').value,price:pr,reason:re,author:S.user.name,status:'pending',at:Date.now()});
+  pushLog(`✏️ Correction proposée par ${S.user.name}`);
+  e.target.reset();toast('Correction envoyée en modération !');
+  renderAll();
+});
 
-    function renderAdmin(){
-      const queue=[
-        ...state.comments.filter(c=>c.status==='pending').map(c=>({type:'comment',...c})),
-        ...state.proposals.filter(p=>p.status==='pending').map(p=>({type:'proposal',...p}))
-      ].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-      document.getElementById('adminQueue').innerHTML=queue.map(item=>{
-        const st=state.stations.find(s=>s.id===item.stationId);
-        return `<article class="admin-card"><div class="comment-meta"><strong>${item.type==='comment'?'Commentaire':'Correction prix'}</strong><span class="tiny status-pending">En attente</span></div><h3>${st.name} · ${st.city}</h3><div class="muted tiny">Par ${item.author}</div><div style="margin:.6rem 0">${item.type==='comment'?item.text:`${item.fuel} → <strong>${item.proposedPrice.toFixed(3)} €/L</strong><br><span class='tiny'>${item.reason}</span>`}</div><div class="admin-actions"><button class="btn primary" onclick="approveItem('${item.type}',${item.id})">Approuver</button><button class="btn" onclick="rejectItem('${item.type}',${item.id})">Refuser</button></div></article>`;
-      }).join('')||'<div class="muted">Aucun élément en attente.</div>';
-      document.getElementById('activityLog').innerHTML=state.activity.map(l=>`<div class="comment-card"><div class="comment-meta"><strong>${l.message}</strong><span class="tiny">${l.at}</span></div></div>`).join('');
-    }
+// — LOCATE
+document.getElementById('locateBtn').addEventListener('click',()=>{
+  if(!navigator.geolocation)return toast('Géoloc non disponible.');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    S.pos={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    if(S.map)S.map.setView([S.pos.lat,S.pos.lng],11);
+    pushLog('📍 Position mise à jour');
+    toast('📍 Position détectée !');renderRankings();
+  },()=>toast('Position indisponible.'));
+});
 
-    function pushActivity(msg){state.activity.unshift({id:Date.now(),message:msg,at:new Date().toLocaleString('fr-FR')});state.activity=state.activity.slice(0,15);}
-    function stName(id){return state.stations.find(s=>s.id===id)?.name||'station';}
+// — DEMO RESET
+document.getElementById('seedBtn').addEventListener('click',resetDemo);
 
-    function approveItem(type,id){
-      if(type==='comment'){const c=state.comments.find(x=>x.id===id);if(!c)return;c.status='approved';pushActivity(`Commentaire approuvé — ${stName(c.stationId)}`);}
-      else{const p=state.proposals.find(x=>x.id===id);if(!p)return;p.status='approved';const st=state.stations.find(s=>s.id===p.stationId);st.prices[p.fuel]=p.proposedPrice;pushActivity(`Prix ${p.fuel} mis à jour — ${st.name}`);}
-      renderAll();
-    }
-    function rejectItem(type,id){
-      if(type==='comment'){const c=state.comments.find(x=>x.id===id);if(!c)return;c.status='rejected';pushActivity(`Commentaire refusé — ${stName(c.stationId)}`);}
-      else{const p=state.proposals.find(x=>x.id===id);if(!p)return;p.status='rejected';pushActivity(`Correction refusée — ${stName(p.stationId)}`);}
-      renderAll();
-    }
-    window.approveItem=approveItem; window.rejectItem=rejectItem;
+// — iOS TOGGLE
+const chk=document.getElementById('themeChk');
+const html=document.documentElement;
+const dark=matchMedia('(prefers-color-scheme:dark)').matches;
+if(dark){html.setAttribute('data-theme','dark');chk.checked=true;}
+chk.addEventListener('change',()=>{
+  html.setAttribute('data-theme',chk.checked?'dark':'light');
+  if(S.map)setTimeout(()=>S.map.invalidateSize(),200);
+});
 
-    function updateCounters(){
-      document.getElementById('stationCount').textContent=state.stations.length;
-      document.getElementById('pendingCount').textContent=state.comments.filter(c=>c.status==='pending').length+state.proposals.filter(p=>p.status==='pending').length;
-      document.getElementById('commentCount').textContent=state.comments.filter(c=>c.status==='approved').length;
-    }
-
-    function renderAll(){hydrateSelects();updateCounters();renderMap();renderRankings();renderStationDetails();renderSession();renderComments();renderAdmin();}
-
-    function setupEvents(){
-      document.querySelectorAll('[data-view-target]').forEach(btn=>btn.addEventListener('click',()=>{
-        document.querySelectorAll('[data-view-target]').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
-        document.getElementById(btn.dataset.viewTarget).classList.remove('hidden');
-        if(btn.dataset.viewTarget==='mapView'&&state.map) setTimeout(()=>state.map.invalidateSize(),50);
-      }));
-
-      ['fuelFilter','searchFilter','maxPriceFilter','sortFilter'].forEach(id=>{
-        const el=document.getElementById(id); if(el) el.addEventListener('input',()=>{renderMap();renderStationDetails();});
-      });
-      const ff=document.getElementById('fuelFilter'); if(ff) ff.addEventListener('change',()=>{renderMap();renderRankings();});
-
-      const pfs=document.getElementById('profileFuelSelect');
-      if(pfs) pfs.addEventListener('change',e=>{state.preferredFuel=e.target.value;if(state.currentUser)state.currentUser.preferredFuel=e.target.value;renderAll();});
-
-      document.getElementById('registerForm').addEventListener('submit',e=>{
-        e.preventDefault(); const fd=new FormData(e.target);
-        state.currentUser={name:fd.get('name'),email:fd.get('email'),preferredFuel:fd.get('preferredFuel'),role:'member'};
-        state.preferredFuel=fd.get('preferredFuel');
-        pushActivity(`Nouveau compte : ${state.currentUser.name}`); e.target.reset();
-        const pfEl=document.getElementById('profileFuelSelect'); if(pfEl) pfEl.value=state.preferredFuel;
-        renderAll();
-      });
-
-      document.getElementById('commentForm').addEventListener('submit',e=>{
-        e.preventDefault(); if(!state.currentUser) return alert('Créez un compte pour commenter.');
-        const text=document.getElementById('commentText').value.trim(); if(!text) return;
-        state.comments.unshift({id:Date.now(),stationId:Number(document.getElementById('commentStation').value),author:state.currentUser.name,text,status:'pending',createdAt:new Date().toISOString()});
-        pushActivity(`Commentaire soumis par ${state.currentUser.name}`);
-        document.getElementById('commentText').value=''; renderAll();
-      });
-
-      document.getElementById('priceProposalForm').addEventListener('submit',e=>{
-        e.preventDefault(); if(!state.currentUser) return alert('Créez un compte pour proposer une correction.');
-        const price=parseFloat(document.getElementById('proposalPrice').value);
-        const reason=document.getElementById('proposalReason').value.trim();
-        if(!price||!reason) return;
-        state.proposals.unshift({id:Date.now(),stationId:Number(document.getElementById('proposalStation').value),fuel:document.getElementById('proposalFuel').value,proposedPrice:price,reason,author:state.currentUser.name,status:'pending',createdAt:new Date().toISOString()});
-        pushActivity(`Correction proposée par ${state.currentUser.name}`);
-        e.target.reset(); renderAll();
-      });
-
-      document.getElementById('seedBtn').addEventListener('click',resetDemo);
-      document.getElementById('locateBtn').addEventListener('click',()=>{
-        if(!navigator.geolocation) return alert('Géolocalisation non disponible.');
-        navigator.geolocation.getCurrentPosition(pos=>{
-          state.userPosition={lat:pos.coords.latitude,lng:pos.coords.longitude};
-          if(state.map) state.map.setView([state.userPosition.lat,state.userPosition.lng],10);
-          pushActivity('Position mise à jour'); renderAll();
-        },()=>alert('Position indisponible.'));
-      });
-
-      document.getElementById('themeToggle').addEventListener('click',()=>{
-        const html=document.documentElement;
-        html.setAttribute('data-theme',html.getAttribute('data-theme')==='dark'?'light':'dark');
-      });
-    }
-
-    resetDemo(); setupEvents();
-  </script>
+// — INIT
+resetDemo();
+</script>
 </body>
 </html>
