@@ -6,320 +6,372 @@
 <title>CrazyFuel — Prix carburants France</title>
 <meta name="description" content="Carte temps réel des prix carburants en France. Communauté, corrections, dashboard admin."/>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@600,700,800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <style>
-/* ─── TOKENS ─────────────────────────────────────────────── */
+/* ═══ TOKENS ════════════════════════════════════════════ */
 :root,[data-theme="light"]{
-  --tx:.75rem;--ts:.875rem;--tb:1rem;--tl:1.2rem;--txl:1.6rem;
-  --s1:.25rem;--s2:.5rem;--s3:.75rem;--s4:1rem;--s5:1.25rem;--s6:1.5rem;--s8:2rem;--s10:2.5rem;
-  --bg:#f4f3ee;--sur:#fafaf7;--sur2:#efede6;--bor:rgba(0,0,0,.1);--div:rgba(0,0,0,.07);
-  --tx0:#1a1a16;--tx1:#5a5950;--tx2:#9e9b92;--txi:#fff;
-  --pri:#0e737c;--prih:#0a5860;--pris:#d3eeef;
-  --acc:#e8620a;--accS:#fde8d6;
-  --ok:#3d7a1a;--warn:#b06000;--err:#a01f38;
-  --r3:.75rem;--r4:1rem;--r6:1.5rem;--rf:9999px;
-  --sh1:0 2px 8px rgba(0,0,0,.06);--sh2:0 12px 36px rgba(0,0,0,.10);
-  --font:'Satoshi',system-ui,sans-serif;--fdis:'Cabinet Grotesk',system-ui,sans-serif;
-  --fuel-g:#2563eb;--fuel-95:#16a34a;--fuel-e10:#15803d;--fuel-98:#7c3aed;--fuel-gpl:#0891b2;--fuel-e85:#ca8a04;
+  --ts:.85rem;--tb:1rem;--tl:1.15rem;--txl:clamp(1.5rem,3vw,2rem);
+  --s1:.25rem;--s2:.5rem;--s3:.75rem;--s4:1rem;--s5:1.25rem;--s6:1.5rem;--s8:2rem;
+  --bg:#f0efe9;--sur:#fafaf7;--sur2:#f3f1ea;--sur3:#eae8df;
+  --bor:rgba(30,28,20,.1);--div:rgba(30,28,20,.07);
+  --tx0:#1c1b15;--tx1:#5e5c52;--tx2:#9c9a90;--txi:#fff;
+  --pri:#0a7880;--prih:#075e66;--pris:rgba(10,120,128,.12);--priBright:#0fb5c2;
+  --acc:#e8620a;--accS:rgba(232,98,10,.12);
+  --ok:#2e7d1a;--warn:#a05a00;--err:#980f2a;
+  --fuel-g:#2563eb;--fuel-95:#16a34a;--fuel-e10:#059669;
+  --fuel-98:#7c3aed;--fuel-gpl:#0891b2;--fuel-e85:#ca8a04;
+  --r3:.75rem;--r4:1rem;--r5:1.25rem;--r6:1.5rem;--rf:9999px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --sh1:0 2px 10px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);
+  --sh2:0 20px 60px rgba(0,0,0,.12),0 4px 16px rgba(0,0,0,.06);
+  --sh3:0 0 0 3px rgba(10,120,128,.18);
+  --font:'Satoshi',system-ui,sans-serif;
+  --fdis:'Cabinet Grotesk',system-ui,sans-serif;
+  --sidebar-w:260px;
 }
 [data-theme="dark"]{
-  --bg:#111210;--sur:#191b18;--sur2:#222420;--bor:rgba(255,255,255,.09);--div:rgba(255,255,255,.06);
-  --tx0:#e8e5db;--tx1:#a09d94;--tx2:#65625a;--txi:#111210;
-  --pri:#5ab4bc;--prih:#7fcdd4;--pris:#1c3436;
-  --acc:#f47a30;--accS:#3a2010;
-  --ok:#74b84e;--warn:#e0ad4d;--err:#e86070;
-  --sh1:0 2px 10px rgba(0,0,0,.25);--sh2:0 16px 48px rgba(0,0,0,.45);
+  --bg:#0e0f0d;--sur:#171916;--sur2:#1e201c;--sur3:#262825;
+  --bor:rgba(255,255,255,.09);--div:rgba(255,255,255,.06);
+  --tx0:#e9e6da;--tx1:#908d82;--tx2:#5a5750;--txi:#0e0f0d;
+  --pri:#4bbac4;--prih:#6dd0d8;--pris:rgba(75,186,196,.13);--priBright:#79dce6;
+  --acc:#f07830;--accS:rgba(240,120,48,.13);
+  --ok:#5ab83e;--warn:#e0a840;--err:#e84060;
+  --sh1:0 2px 12px rgba(0,0,0,.28),0 1px 4px rgba(0,0,0,.2);
+  --sh2:0 20px 60px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.3);
+  --sh3:0 0 0 3px rgba(75,186,196,.22);
 }
 
-/* ─── RESET ──────────────────────────────────────────────── */
+/* ═══ RESET ═════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:none;scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--tx0);font-size:var(--tb);line-height:1.55;min-height:100dvh;overflow-x:hidden}
-body,html{transition:background .28s,color .28s}
+body{font-family:var(--font);background:var(--bg);color:var(--tx0);font-size:var(--tb);line-height:1.56;min-height:100dvh;overflow-x:hidden;transition:background .35s var(--ease),color .35s var(--ease)}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;border:none;background:none}
 a{text-decoration:none;color:inherit}
 img,svg{display:block;max-width:100%}
-::selection{background:oklch(from var(--pri) l c h/.2)}
+::selection{background:var(--pris)}
 :focus-visible{outline:2px solid var(--pri);outline-offset:3px;border-radius:4px}
 
-/* ─── LAYOUT ─────────────────────────────────────────────── */
-.shell{display:grid;grid-template-columns:260px 1fr;min-height:100dvh}
+/* ═══ SCROLLBAR ════════════════════════════════════════ */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bor);border-radius:99px}
 
-/* ─── SIDEBAR ────────────────────────────────────────────── */
+/* ═══ LAYOUT ════════════════════════════════════════════ */
+.shell{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100dvh}
+
+/* ═══ SIDEBAR ═══════════════════════════════════════════ */
 .sidebar{
   background:var(--sur);border-right:1px solid var(--bor);
   padding:var(--s5);display:flex;flex-direction:column;gap:var(--s5);
   position:sticky;top:0;height:100dvh;overflow-y:auto;
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
 }
-.brand{display:flex;align-items:center;gap:var(--s3)}
-.logo{width:44px;height:44px;background:linear-gradient(135deg,var(--pri),var(--acc));border-radius:var(--r3);display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 16px color-mix(in oklch,var(--pri) 35%,transparent)}
+
+/* Brand */
+.brand{display:flex;align-items:center;gap:12px;padding:var(--s2) 0}
+.logo{
+  width:46px;height:46px;flex-shrink:0;border-radius:14px;
+  background:linear-gradient(140deg,var(--pri),var(--acc));
+  display:grid;place-items:center;
+  box-shadow:0 6px 20px rgba(10,120,128,.35);
+}
 .logo svg{width:26px;height:26px;color:#fff}
-.brand-name{font-family:var(--fdis);font-size:1.3rem;font-weight:800;line-height:1}
-.brand-tag{font-size:.7rem;color:var(--tx1);text-transform:uppercase;letter-spacing:.08em;margin-top:.15rem}
+.brand-name{font-family:var(--fdis);font-size:1.28rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.brand-tag{font-size:.68rem;color:var(--tx2);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
 
-.nav{display:flex;flex-direction:column;gap:4px}
+/* Nav */
+.nav{display:flex;flex-direction:column;gap:2px}
 .nav-btn{
-  display:flex;align-items:center;gap:var(--s3);
-  padding:.75rem var(--s3);border-radius:var(--r3);
+  display:flex;align-items:center;gap:10px;
+  padding:.7rem .85rem;border-radius:var(--r4);
   color:var(--tx1);font-size:var(--ts);font-weight:500;
-  transition:all .2s cubic-bezier(.16,1,.3,1);position:relative;
-  text-align:left;width:100%;
+  transition:background .18s var(--ease),color .18s var(--ease),transform .15s var(--ease);
+  position:relative;text-align:left;width:100%;
 }
-.nav-btn .nav-ico{width:34px;height:34px;border-radius:var(--r3);display:grid;place-items:center;background:var(--sur2);flex-shrink:0;transition:all .2s cubic-bezier(.16,1,.3,1)}
-.nav-btn:hover{color:var(--tx0)}
-.nav-btn:hover .nav-ico{background:color-mix(in oklch,var(--pri) 12%,var(--sur2))}
-.nav-btn.active{color:var(--pri);font-weight:700}
-.nav-btn.active .nav-ico{background:var(--pris);color:var(--pri)}
+.nav-ico{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--sur2);flex-shrink:0;font-size:1rem;transition:background .18s var(--ease),transform .2s var(--ease)}
+.nav-btn:hover{color:var(--tx0);background:var(--sur2)}
+.nav-btn:hover .nav-ico{transform:scale(1.08)}
+.nav-btn.active{color:var(--pri);background:var(--pris);font-weight:700}
+.nav-btn.active .nav-ico{background:var(--pris)}
+.nav-btn.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--pri);border-radius:0 3px 3px 0}
 
-.fuel-pref-card{
-  padding:var(--s4);background:linear-gradient(135deg,var(--pris),transparent);
-  border:1px solid color-mix(in oklch,var(--pri) 25%,transparent);border-radius:var(--r4);
+/* Fuel pref */
+.fuel-pref{
+  padding:var(--s4);border-radius:var(--r5);
+  background:linear-gradient(135deg,var(--pris),transparent);
+  border:1px solid color-mix(in srgb,var(--pri) 22%,transparent);
 }
-.fuel-pref-card .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx1);margin-bottom:.4rem}
-.fuel-pref-card .value{font-family:var(--fdis);font-size:1.1rem;font-weight:800;color:var(--pri)}
+.fuel-pref .lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tx1);margin-bottom:.4rem}
+.fuel-pref .val{font-family:var(--fdis);font-size:1.1rem;font-weight:800;color:var(--pri)}
+.fuel-pref .hint{font-size:.68rem;color:var(--tx1);margin-top:.35rem;line-height:1.4}
 
-/* iOS-style toggle */
-.theme-row{display:flex;align-items:center;justify-content:space-between;padding:var(--s3) var(--s4);background:var(--sur2);border-radius:var(--r4)}
-.theme-label{font-size:var(--ts);font-weight:500;color:var(--tx1)}
-.ios-toggle{position:relative;width:50px;height:28px;cursor:pointer}
-.ios-toggle input{opacity:0;width:0;height:0;position:absolute}
+/* iOS Toggle */
+.theme-row{display:flex;align-items:center;justify-content:space-between;padding:var(--s3) var(--s4);background:var(--sur2);border-radius:var(--r4);border:1px solid var(--bor)}
+.theme-lbl{font-size:var(--ts);font-weight:500;color:var(--tx1);display:flex;align-items:center;gap:8px}
+.ios-sw{position:relative;width:52px;height:30px;cursor:pointer;flex-shrink:0}
+.ios-sw input{position:absolute;opacity:0;width:0;height:0}
 .ios-track{
-  position:absolute;inset:0;border-radius:14px;
-  background:var(--bor);transition:background .3s cubic-bezier(.16,1,.3,1);
-  border:1px solid var(--div);
+  position:absolute;inset:0;border-radius:15px;
+  background:color-mix(in srgb,var(--tx2) 40%,var(--bor));
+  transition:background .3s var(--ease);
 }
-.ios-toggle input:checked + .ios-track{background:var(--pri);border-color:var(--pri)}
+.ios-sw input:checked+.ios-track{background:var(--pri)}
 .ios-knob{
-  position:absolute;top:3px;left:3px;width:22px;height:22px;
-  background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.2);
-  transition:transform .28s cubic-bezier(.34,1.56,.64,1);
+  position:absolute;top:3px;left:3px;
+  width:24px;height:24px;border-radius:50%;
+  background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
   display:grid;place-items:center;
 }
-.ios-toggle input:checked ~ .ios-knob{transform:translateX(22px)}
-.ios-knob svg{width:12px;height:12px;transition:opacity .2s}
-.ico-sun{color:#f59e0b}
-.ico-moon{color:#6366f1;display:none}
-.ios-toggle input:checked ~ .ios-knob .ico-sun{display:none}
-.ios-toggle input:checked ~ .ios-knob .ico-moon{display:block}
+.ios-sw input:checked~.ios-knob{transform:translateX(22px)}
+.ico-sun,.ico-moon{width:13px;height:13px;position:absolute;transition:opacity .2s,transform .2s}
+.ico-sun{opacity:1;color:#f59e0b;transform:rotate(0)}
+.ico-moon{opacity:0;color:#6366f1;transform:rotate(-30deg)}
+.ios-sw input:checked~.ios-knob .ico-sun{opacity:0;transform:rotate(30deg)}
+.ios-sw input:checked~.ios-knob .ico-moon{opacity:1;transform:rotate(0)}
 
-/* ─── MAIN ───────────────────────────────────────────────── */
+/* ═══ MAIN ══════════════════════════════════════════════ */
 .main{padding:var(--s6);display:flex;flex-direction:column;gap:var(--s6);overflow-y:auto;min-height:100dvh}
 
-/* ─── PAGE HEADER ────────────────────────────────────────── */
+/* ═══ PAGE HEADER ════════════════════════════════════════ */
 .page-header{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s4);flex-wrap:wrap}
-.page-title{font-family:var(--fdis);font-size:var(--txl);font-weight:800;line-height:1.1}
-.page-sub{font-size:var(--ts);color:var(--tx1);margin-top:.4rem;max-width:68ch}
+.page-title{font-family:var(--fdis);font-size:var(--txl);font-weight:800;line-height:1.1;letter-spacing:-.025em}
+.page-title .hl{color:var(--pri)}
+.page-sub{font-size:var(--ts);color:var(--tx1);margin-top:.45rem;max-width:64ch;line-height:1.6}
 .acts{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center}
 
-/* ─── BUTTONS ────────────────────────────────────────────── */
+/* ═══ BUTTONS ════════════════════════════════════════════ */
 .btn{
-  display:inline-flex;align-items:center;gap:.45rem;
-  padding:.65rem 1.1rem;border-radius:var(--rf);
+  display:inline-flex;align-items:center;gap:6px;
+  padding:.65rem 1.15rem;border-radius:var(--rf);
   font-size:var(--ts);font-weight:600;
   border:1.5px solid var(--bor);background:var(--sur);color:var(--tx0);
-  transition:all .18s cubic-bezier(.16,1,.3,1);white-space:nowrap;
+  transition:transform .15s var(--ease),box-shadow .15s var(--ease),filter .15s;
+  white-space:nowrap;
 }
-.btn:hover{transform:translateY(-1px);box-shadow:var(--sh1);border-color:color-mix(in oklch,var(--pri) 30%,var(--bor))}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--sh1)}
 .btn:active{transform:translateY(0)}
 .btn-pri{
-  background:linear-gradient(135deg,var(--pri),color-mix(in oklch,var(--pri) 80%,var(--acc)));
+  background:linear-gradient(135deg,var(--pri),color-mix(in srgb,var(--pri) 75%,var(--acc)));
   border-color:transparent;color:#fff;
-  box-shadow:0 4px 14px color-mix(in oklch,var(--pri) 38%,transparent);
+  box-shadow:0 4px 18px rgba(10,120,128,.38);
 }
-.btn-pri:hover{filter:brightness(1.07);box-shadow:0 6px 20px color-mix(in oklch,var(--pri) 45%,transparent)}
-.btn-acc{background:var(--acc);border-color:transparent;color:#fff;box-shadow:0 4px 14px color-mix(in oklch,var(--acc) 35%,transparent)}
-.btn-acc:hover{filter:brightness(1.07)}
+.btn-pri:hover{filter:brightness(1.08);box-shadow:0 8px 26px rgba(10,120,128,.45)}
+.btn-acc{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 70%,#c00));border-color:transparent;color:#fff;box-shadow:0 4px 18px rgba(232,98,10,.35)}
+.btn-acc:hover{filter:brightness(1.08)}
+.btn-sm{padding:.45rem .85rem;font-size:.78rem}
+.btn-err{border-color:color-mix(in srgb,var(--err) 30%,var(--bor));color:var(--err)}
+.btn-err:hover{background:color-mix(in srgb,var(--err) 8%,var(--sur))}
 
-/* ─── KPIs ───────────────────────────────────────────────── */
+/* ═══ KPIs ═══════════════════════════════════════════════ */
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4)}
 .kpi{
-  background:var(--sur);border:1px solid var(--bor);border-radius:var(--r4);
-  padding:var(--s4) var(--s5);box-shadow:var(--sh1);
-  display:flex;flex-direction:column;gap:.3rem;
-  transition:transform .2s,box-shadow .2s;
+  background:var(--sur);border:1px solid var(--bor);border-radius:var(--r5);
+  padding:var(--s5);box-shadow:var(--sh1);
+  display:grid;gap:.2rem;
+  transition:transform .2s var(--ease),box-shadow .2s var(--ease);
+  cursor:default;
 }
-.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
-.kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx2);font-weight:600}
-.kpi-value{font-family:var(--fdis);font-size:1.9rem;font-weight:800;line-height:1;color:var(--tx0)}
+.kpi:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+.kpi-icon{font-size:1.4rem;margin-bottom:.2rem}
+.kpi-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tx2);font-weight:600}
+.kpi-val{
+  font-family:var(--fdis);font-size:2rem;font-weight:800;line-height:1;color:var(--tx0);
+  animation:countUp .5s var(--ease) both;
+}
 .kpi-sub{font-size:.72rem;color:var(--tx1)}
 
-/* ─── CARDS / PANELS ─────────────────────────────────────── */
-.card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r6);box-shadow:var(--sh1);padding:var(--s5)}
+/* ═══ CARDS ══════════════════════════════════════════════ */
+.card{
+  background:var(--sur);border:1px solid var(--bor);
+  border-radius:var(--r6);box-shadow:var(--sh1);
+  padding:var(--s5);
+  transition:box-shadow .2s var(--ease);
+}
 .card-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);margin-bottom:var(--s4)}
-.card-title{font-family:var(--fdis);font-size:var(--tl);font-weight:800}
-.card-hint{font-size:.72rem;color:var(--tx2)}
+.card-title{font-family:var(--fdis);font-size:var(--tl);font-weight:800;letter-spacing:-.02em}
+.card-hint{font-size:.7rem;color:var(--tx2)}
 
+/* ═══ MAP ════════════════════════════════════════════════ */
 .map-wrap{display:grid;grid-template-columns:1fr 340px;gap:var(--s5);align-items:start}
-#map{height:62vh;border-radius:var(--r4);overflow:hidden;z-index:0}
-
-/* ─── FILTERS ────────────────────────────────────────────── */
+#map{height:60vh;border-radius:var(--r5);overflow:hidden;z-index:0;border:1px solid var(--bor)}
 .filters{display:flex;gap:var(--s3);flex-wrap:wrap;margin-bottom:var(--s4)}
 .fld{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:120px}
-.fld label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx2);font-weight:600}
+.fld label{font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tx2);font-weight:600}
 .fld input,.fld select{
-  background:var(--sur2);border:1.5px solid var(--bor);padding:.6rem .85rem;
-  border-radius:var(--r3);color:var(--tx0);font-size:var(--ts);
-  transition:border-color .18s;
+  background:var(--sur2);border:1.5px solid var(--bor);
+  padding:.6rem .85rem;border-radius:var(--r3);
+  color:var(--tx0);font-size:var(--ts);
+  transition:border-color .18s,box-shadow .18s;
 }
-.fld input:focus,.fld select:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--pri) 15%,transparent)}
+.fld input:focus,.fld select:focus{border-color:var(--pri);outline:none;box-shadow:var(--sh3)}
 
-/* ─── FUEL CHIPS ─────────────────────────────────────────── */
-.fuel-chips{display:flex;gap:var(--s2);flex-wrap:wrap}
-.fuel-chip{
-  padding:.35rem .8rem;border-radius:var(--rf);font-size:.75rem;font-weight:700;
-  border:1.5px solid;transition:all .18s;
-}
-.fuel-chip.gaz{background:color-mix(in oklch,var(--fuel-g) 12%,transparent);color:var(--fuel-g);border-color:color-mix(in oklch,var(--fuel-g) 30%,transparent)}
-.fuel-chip.sp95{background:color-mix(in oklch,var(--fuel-95) 12%,transparent);color:var(--fuel-95);border-color:color-mix(in oklch,var(--fuel-95) 30%,transparent)}
-.fuel-chip.e10{background:color-mix(in oklch,var(--fuel-e10) 12%,transparent);color:var(--fuel-e10);border-color:color-mix(in oklch,var(--fuel-e10) 30%,transparent)}
-.fuel-chip.sp98{background:color-mix(in oklch,var(--fuel-98) 12%,transparent);color:var(--fuel-98);border-color:color-mix(in oklch,var(--fuel-98) 30%,transparent)}
-.fuel-chip.gpl{background:color-mix(in oklch,var(--fuel-gpl) 12%,transparent);color:var(--fuel-gpl);border-color:color-mix(in oklch,var(--fuel-gpl) 30%,transparent)}
-.fuel-chip.e85{background:color-mix(in oklch,var(--fuel-e85) 12%,transparent);color:var(--fuel-e85);border-color:color-mix(in oklch,var(--fuel-e85) 30%,transparent)}
-
-/* ─── RANKINGS ───────────────────────────────────────────── */
-.rank-list{display:flex;flex-direction:column;gap:var(--s3)}
+/* ═══ RANKINGS ═══════════════════════════════════════════ */
+.rank-list{display:flex;flex-direction:column;gap:var(--s2)}
 .rank-item{
   display:flex;align-items:center;gap:var(--s3);
-  padding:var(--s3) var(--s4);background:var(--sur2);
-  border-radius:var(--r3);border:1px solid var(--bor);
-  transition:transform .18s,box-shadow .18s;
+  padding:.7rem var(--s3);background:var(--sur2);
+  border-radius:var(--r4);border:1px solid var(--bor);
+  transition:transform .18s var(--ease),box-shadow .18s;
+  animation:slideIn .3s var(--ease) both;
 }
-.rank-item:hover{transform:translateX(3px);box-shadow:var(--sh1)}
+.rank-item:nth-child(2){animation-delay:.06s}
+.rank-item:nth-child(3){animation-delay:.12s}
+.rank-item:hover{transform:translateX(4px);box-shadow:var(--sh1)}
 .rank-num{
-  width:30px;height:30px;border-radius:var(--rf);
-  background:linear-gradient(135deg,var(--pri),var(--acc));
-  color:#fff;font-family:var(--fdis);font-size:.85rem;font-weight:800;
-  display:grid;place-items:center;flex-shrink:0;
+  width:28px;height:28px;border-radius:var(--rf);
+  font-family:var(--fdis);font-size:.82rem;font-weight:800;
+  display:grid;place-items:center;flex-shrink:0;color:#fff;
 }
+.rank-num.r1{background:linear-gradient(135deg,#f59e0b,#d97706)}
 .rank-num.r2{background:linear-gradient(135deg,#64748b,#94a3b8)}
-.rank-num.r3{background:linear-gradient(135deg,#78350f,#d97706)}
+.rank-num.r3{background:linear-gradient(135deg,#92400e,#d97706)}
 .rank-info{flex:1;min-width:0}
 .rank-name{font-weight:700;font-size:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rank-city{font-size:.72rem;color:var(--tx1)}
-.rank-price{font-family:var(--fdis);font-size:1rem;font-weight:800;color:var(--pri);white-space:nowrap}
+.rank-city{font-size:.68rem;color:var(--tx2);margin-top:1px}
+.rank-price{font-family:var(--fdis);font-size:1.05rem;font-weight:800;color:var(--pri);white-space:nowrap}
 
-/* ─── STATION DETAIL ─────────────────────────────────────── */
+/* ═══ STATION DETAIL ══════════════════════════════════════ */
 .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
-.price-chip{
-  padding:.6rem .8rem;background:var(--sur2);
-  border-radius:var(--r3);border:1px solid var(--bor);
-}
-.price-chip .f-name{font-size:.68rem;color:var(--tx1);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.1rem}
+.price-chip{padding:.65rem .8rem;background:var(--sur2);border-radius:var(--r3);border:1px solid var(--bor);transition:transform .15s}
+.price-chip:hover{transform:scale(1.02)}
+.price-chip .f-name{font-size:.65rem;color:var(--tx1);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
 .price-chip .f-val{font-family:var(--fdis);font-size:1rem;font-weight:800}
-.cheapest .price-chip{border-color:var(--ok);background:color-mix(in oklch,var(--ok) 8%,var(--sur2))}
+.price-chip.best{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 9%,var(--sur2))}
+.price-chip.worst{border-color:var(--err);background:color-mix(in srgb,var(--err) 6%,var(--sur2))}
 
-/* ─── COMMENTS ───────────────────────────────────────────── */
+/* ═══ FUEL CHIPS ══════════════════════════════════════════ */
+.fuel-chip{display:inline-flex;align-items:center;padding:.3rem .75rem;border-radius:var(--rf);font-size:.75rem;font-weight:700;border:1.5px solid;letter-spacing:.02em}
+.fc-g{background:rgba(37,99,235,.1);color:#2563eb;border-color:rgba(37,99,235,.25)}
+.fc-95{background:rgba(22,163,74,.1);color:#16a34a;border-color:rgba(22,163,74,.25)}
+.fc-e10{background:rgba(5,150,105,.1);color:#059669;border-color:rgba(5,150,105,.25)}
+.fc-98{background:rgba(124,58,237,.1);color:#7c3aed;border-color:rgba(124,58,237,.25)}
+.fc-gpl{background:rgba(8,145,178,.1);color:#0891b2;border-color:rgba(8,145,178,.25)}
+.fc-e85{background:rgba(202,138,4,.1);color:#ca8a04;border-color:rgba(202,138,4,.25)}
+
+/* ═══ BADGES ══════════════════════════════════════════════ */
+.badge{display:inline-flex;align-items:center;padding:.28rem .7rem;border-radius:var(--rf);font-size:.7rem;font-weight:700;letter-spacing:.02em}
+.bg-pri{background:var(--pris);color:var(--pri)}
+.bg-acc{background:var(--accS);color:var(--acc)}
+.bg-ok{background:rgba(46,125,26,.12);color:var(--ok)}
+.bg-warn{background:rgba(160,90,0,.12);color:var(--warn)}
+.bg-err{background:rgba(152,15,42,.12);color:var(--err)}
+
+/* ═══ COMMENTS ════════════════════════════════════════════ */
 .comment-list{display:flex;flex-direction:column;gap:var(--s3)}
 .comment{
-  padding:var(--s4);background:var(--sur2);border-radius:var(--r3);
-  border:1px solid var(--bor);
-  animation:slideIn .25s cubic-bezier(.16,1,.3,1);
-}
-.comment-top{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);margin-bottom:.4rem}
-.comment-author{font-weight:700;font-size:var(--ts)}
-.comment-station{font-size:.72rem;color:var(--tx1)}
-.comment-body{font-size:var(--ts);color:var(--tx0);line-height:1.5}
-
-/* ─── ADMIN ──────────────────────────────────────────────── */
-.admin-item{
   padding:var(--s4);background:var(--sur2);
   border-radius:var(--r4);border:1px solid var(--bor);
-  animation:slideIn .25s cubic-bezier(.16,1,.3,1);
+  animation:slideIn .25s var(--ease) both;
 }
-.admin-item h3{font-size:var(--ts);font-weight:700;margin-bottom:.2rem}
-.admin-btns{display:flex;gap:var(--s2);margin-top:var(--s3)}
-.log-item{
-  display:flex;gap:var(--s3);align-items:flex-start;
-  padding:.6rem .8rem;background:var(--sur2);border-radius:var(--r3);
-  border-left:3px solid var(--pri);
-}
-.log-dot{width:8px;height:8px;border-radius:50%;background:var(--pri);flex-shrink:0;margin-top:.35rem}
-.log-msg{font-size:var(--ts);flex:1}
-.log-time{font-size:.68rem;color:var(--tx2);white-space:nowrap}
+.comment-top{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s2);margin-bottom:.4rem}
+.comment-author{font-weight:700;font-size:var(--ts)}
+.comment-station{font-size:.7rem;color:var(--tx2);background:var(--pris);color:var(--pri);padding:.2rem .55rem;border-radius:var(--rf);font-weight:600}
+.comment-body{font-size:var(--ts);color:var(--tx0);line-height:1.55}
 
-/* ─── FORMS ──────────────────────────────────────────────── */
+/* ═══ ADMIN ═══════════════════════════════════════════════ */
+.admin-item{
+  padding:var(--s4);background:var(--sur2);
+  border-radius:var(--r5);border:1px solid var(--bor);
+  animation:slideIn .25s var(--ease) both;
+}
+.admin-btns{display:flex;gap:var(--s2);margin-top:var(--s3);flex-wrap:wrap}
+.log-item{
+  display:flex;gap:var(--s3);align-items:center;
+  padding:.55rem .8rem;background:var(--sur2);
+  border-radius:var(--r3);border:1px solid var(--bor);
+}
+.log-dot{width:7px;height:7px;border-radius:50%;background:var(--pri);flex-shrink:0}
+.log-msg{font-size:var(--ts);flex:1;line-height:1.4}
+.log-time{font-size:.65rem;color:var(--tx2);white-space:nowrap}
+
+/* ═══ FORMS ═══════════════════════════════════════════════ */
 .form-grid{display:flex;flex-direction:column;gap:var(--s4)}
 .fld textarea{
-  min-height:90px;resize:vertical;
-  background:var(--sur2);border:1.5px solid var(--bor);padding:.6rem .85rem;
-  border-radius:var(--r3);color:var(--tx0);font-size:var(--ts);
+  min-height:88px;resize:vertical;
+  background:var(--sur2);border:1.5px solid var(--bor);
+  padding:.6rem .85rem;border-radius:var(--r3);
+  color:var(--tx0);font-size:var(--ts);line-height:1.5;
+  transition:border-color .18s,box-shadow .18s;
 }
-.fld textarea:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--pri) 15%,transparent)}
+.fld textarea:focus{border-color:var(--pri);outline:none;box-shadow:var(--sh3)}
 
-/* ─── BADGES ─────────────────────────────────────────────── */
-.badge{display:inline-flex;align-items:center;padding:.3rem .7rem;border-radius:var(--rf);font-size:.72rem;font-weight:700}
-.badge-pri{background:var(--pris);color:var(--pri)}
-.badge-acc{background:var(--accS);color:var(--acc)}
-.badge-ok{background:color-mix(in oklch,var(--ok) 12%,transparent);color:var(--ok)}
-.badge-warn{background:color-mix(in oklch,var(--warn) 12%,transparent);color:var(--warn)}
-.badge-err{background:color-mix(in oklch,var(--err) 12%,transparent);color:var(--err)}
-
-/* ─── TOAST ──────────────────────────────────────────────── */
-.toast{
-  position:fixed;bottom:var(--s5);left:50%;transform:translateX(-50%) translateY(20px);
-  background:var(--tx0);color:var(--txi);padding:.7rem 1.3rem;
-  border-radius:var(--rf);font-size:var(--ts);font-weight:600;
-  box-shadow:var(--sh2);opacity:0;transition:all .3s cubic-bezier(.16,1,.3,1);
-  pointer-events:none;z-index:9999;white-space:nowrap;
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ─── VIEWS ──────────────────────────────────────────────── */
-.view{display:none;flex-direction:column;gap:var(--s6);animation:fadeIn .22s ease}
-.view.active{display:flex}
-
-/* ─── AUTH GRID ──────────────────────────────────────────── */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:var(--s6);align-items:start}
-
-/* ─── SESSION PROFILE CARD ───────────────────────────────── */
-.profile-card{display:flex;flex-direction:column;gap:var(--s3)}
-.profile-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--div)}
+/* ═══ PROFILE ═════════════════════════════════════════════ */
+.profile-card{display:flex;flex-direction:column;gap:0}
+.profile-row{display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--div)}
 .profile-row:last-child{border-bottom:none}
 .profile-key{font-size:var(--ts);color:var(--tx1)}
 .profile-val{font-weight:700;font-size:var(--ts)}
 
-/* ─── MOBILE NAV ─────────────────────────────────────────── */
+/* ═══ TOAST ═══════════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:var(--s6);left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--tx0);color:var(--txi);
+  padding:.7rem 1.4rem;border-radius:var(--rf);
+  font-size:var(--ts);font-weight:600;
+  box-shadow:var(--sh2);opacity:0;
+  transition:opacity .25s var(--ease),transform .3s var(--ease);
+  pointer-events:none;z-index:9999;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══ VIEWS ═══════════════════════════════════════════════ */
+.view{display:none;flex-direction:column;gap:var(--s6);animation:fadeIn .22s var(--ease)}
+.view.active{display:flex}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);align-items:start}
+
+/* ═══ MOBILE NAV ══════════════════════════════════════════ */
 .mob-nav{
   display:none;position:fixed;bottom:0;left:0;right:0;
-  background:var(--sur);border-top:1px solid var(--bor);
-  padding:var(--s2) var(--s4) max(var(--s2),env(safe-area-inset-bottom));
-  z-index:100;backdrop-filter:blur(16px);
-  grid-template-columns:repeat(4,1fr);gap:var(--s1);
+  background:color-mix(in srgb,var(--sur) 90%,transparent);
+  border-top:1px solid var(--bor);
+  padding:var(--s2) var(--s4) max(var(--s3),env(safe-area-inset-bottom));
+  z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  grid-template-columns:repeat(4,1fr);gap:4px;
 }
 .mob-btn{
-  display:flex;flex-direction:column;align-items:center;gap:.25rem;
-  padding:.5rem .25rem;border-radius:var(--r3);color:var(--tx2);
-  font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
-  transition:all .2s;width:100%;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:.45rem .25rem;border-radius:var(--r3);color:var(--tx2);
+  font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  transition:color .18s,background .18s,transform .18s var(--ease);width:100%;
 }
-.mob-btn .mico{font-size:1.3rem}
+.mob-btn .mico{font-size:1.25rem;line-height:1;transition:transform .2s var(--ease)}
 .mob-btn.active{color:var(--pri)}
-.mob-btn.active .mico{transform:scale(1.15)}
+.mob-btn.active .mico{transform:scale(1.18)}
+.mob-btn:active{background:var(--sur2)}
 
-/* ─── ANIMATIONS ─────────────────────────────────────────── */
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
-@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.kpi-value{animation:countUp .5s cubic-bezier(.16,1,.3,1) both}
+/* ═══ EMPTY STATE ═════════════════════════════════════════ */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:var(--s10) var(--s6);color:var(--tx1)}
+.empty-ico{font-size:2.5rem;margin-bottom:var(--s3)}
+.empty h3{color:var(--tx0);margin-bottom:.3rem;font-family:var(--fdis)}
+.empty p{font-size:var(--ts);max-width:36ch}
 
-/* ─── RESPONSIVE ─────────────────────────────────────────── */
+/* ═══ ANIMATIONS ══════════════════════════════════════════ */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+@keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s ease-in-out infinite;margin-right:5px;vertical-align:middle}
+
+/* ═══ RESPONSIVE ══════════════════════════════════════════ */
 @media(max-width:1100px){
   .shell{grid-template-columns:1fr}
   .sidebar{display:none}
   .mob-nav{display:grid}
-  .main{padding:var(--s4);padding-bottom:calc(80px + var(--s4))}
+  .main{padding:var(--s4) var(--s4) calc(76px + env(safe-area-inset-bottom))}
   .map-wrap{grid-template-columns:1fr}
   .two-col{grid-template-columns:1fr}
-  #map{height:50vw;min-height:260px}
+  #map{height:calc(55vw + 40px);min-height:260px;max-height:420px}
+  .kpis{gap:var(--s3)}
 }
 @media(max-width:680px){
   .kpis{grid-template-columns:1fr 1fr}
-  .kpis .kpi:last-child{grid-column:1/-1}
+  .kpis .kpi:last-child{grid-column:span 2}
   .filters{flex-direction:column}
-  .page-title{font-size:1.3rem}
+  .page-title{font-size:1.4rem}
   .two-col{grid-template-columns:1fr}
+  .map-wrap{gap:var(--s4)}
+  .acts .btn{flex:1;justify-content:center}
 }
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -327,260 +379,252 @@ img,svg{display:block;max-width:100%}
 <body>
 <div class="shell">
 
-  <!-- SIDEBAR DESKTOP -->
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v11"/>
-          <path d="M14 11h3a2 2 0 0 1 2 2v6"/>
-          <line x1="2" y1="19" x2="22" y2="19"/>
-          <path d="M18 13c-1.5 1-2 3-1 5 .5-1 1.5-1.5 2-3 .4-1-.1-1.8-1-2Z" fill="currentColor" stroke="none"/>
-        </svg>
+<!-- ══ SIDEBAR ══════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v11"/>
+        <path d="M14 11h3a2 2 0 0 1 2 2v6"/>
+        <line x1="2" y1="19" x2="22" y2="19"/>
+        <path d="M18 13c-1.5 1-2 3-1 5 .5-1 1.5-1.5 2-3 .4-1-.1-1.8-1-2Z" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">CrazyFuel</div>
+      <div class="brand-tag">France · Prix pompe</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" data-view="mapView"><span class="nav-ico">🗺️</span><span>Carte &amp; tendances</span></button>
+    <button class="nav-btn" data-view="authView"><span class="nav-ico">👤</span><span>Mon compte</span></button>
+    <button class="nav-btn" data-view="communityView"><span class="nav-ico">💬</span><span>Communauté</span></button>
+    <button class="nav-btn" data-view="adminView"><span class="nav-ico">🛡️</span><span>Admin</span></button>
+  </nav>
+
+  <div class="fuel-pref">
+    <div class="lbl">Carburant préféré</div>
+    <div class="val" id="sidebarFuel">SP95-E10</div>
+    <div class="hint">Pilote le Top 3 national &amp; proximité</div>
+  </div>
+
+  <div class="theme-row">
+    <span class="theme-lbl">
+      <span id="themeEmoji">☀️</span>
+      <span id="themeText">Mode clair</span>
+    </span>
+    <label class="ios-sw" aria-label="Basculer thème">
+      <input type="checkbox" id="themeChk"/>
+      <div class="ios-track"></div>
+      <div class="ios-knob">
+        <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </div>
+    </label>
+  </div>
+</aside>
+
+<!-- ══ MAIN ════════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- ── VUE CARTE ──────────────────────────────────────── -->
+  <section id="mapView" class="view active">
+    <div class="page-header">
       <div>
-        <div class="brand-name">CrazyFuel</div>
-        <div class="brand-tag">Prix carburants France</div>
+        <h1 class="page-title">Prix à la pompe <span class="hl">en direct</span></h1>
+        <p class="page-sub"><span class="live-dot"></span>Consultez, comparez et corrigez les prix sur toute la France. Les contributions sont validées avant publication.</p>
+      </div>
+      <div class="acts">
+        <button class="btn btn-pri" id="locateBtn">📍 Ma position</button>
+        <button class="btn" id="seedBtn">🔄 Démo</button>
       </div>
     </div>
 
-    <nav class="nav">
-      <button class="nav-btn active" data-view="mapView">
-        <span class="nav-ico"><span style="font-size:1rem">🗺️</span></span>
-        <span>Carte &amp; tendances</span>
-      </button>
-      <button class="nav-btn" data-view="authView">
-        <span class="nav-ico"><span style="font-size:1rem">👤</span></span>
-        <span>Mon compte</span>
-      </button>
-      <button class="nav-btn" data-view="communityView">
-        <span class="nav-ico"><span style="font-size:1rem">💬</span></span>
-        <span>Communauté</span>
-      </button>
-      <button class="nav-btn" data-view="adminView">
-        <span class="nav-ico"><span style="font-size:1rem">🛡️</span></span>
-        <span>Admin</span>
-      </button>
-    </nav>
-
-    <div class="fuel-pref-card">
-      <div class="label">Carburant préféré</div>
-      <div class="value" id="sidebarFuel">SP95-E10</div>
-      <div style="font-size:.72rem;color:var(--tx1);margin-top:.4rem">Pilote le Top 3 national &amp; proximité</div>
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-icon">⛽</div><div class="kpi-lbl">Stations</div><div class="kpi-val" id="stationCount">0</div><div class="kpi-sub">en France</div></div>
+      <div class="kpi"><div class="kpi-icon">⏳</div><div class="kpi-lbl">En attente</div><div class="kpi-val" id="pendingCount">0</div><div class="kpi-sub">contributions</div></div>
+      <div class="kpi"><div class="kpi-icon">💬</div><div class="kpi-lbl">Commentaires</div><div class="kpi-val" id="commentCount">0</div><div class="kpi-sub">validés</div></div>
     </div>
 
-    <div class="theme-row">
-      <span class="theme-label">Mode sombre</span>
-      <label class="ios-toggle" aria-label="Basculer mode sombre">
-        <input type="checkbox" id="themeChk"/>
-        <div class="ios-track"></div>
-        <div class="ios-knob">
-          <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <div class="map-wrap">
+      <div class="card" style="padding:var(--s4)">
+        <div class="filters">
+          <div class="fld"><label>Carburant</label><select id="fuelFilter"></select></div>
+          <div class="fld"><label>Recherche</label><input id="searchFilter" placeholder="Paris, Total…"/></div>
+          <div class="fld"><label>Prix max €/L</label><input id="maxPriceFilter" type="number" step="0.001" placeholder="2.000"/></div>
+          <div class="fld"><label>Trier</label><select id="sortFilter"><option value="price">Prix ↑</option><option value="distance">Distance</option><option value="name">Nom A→Z</option></select></div>
         </div>
-      </label>
+        <div id="map"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:var(--s4)">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">🏆 Top 3 France</span>
+            <span class="badge bg-pri" id="nFuelBadge">SP95-E10</span>
+          </div>
+          <div class="rank-list" id="nationalTop"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">📍 Top 3 près de vous</span>
+            <span class="badge bg-acc">Votre position</span>
+          </div>
+          <div class="rank-list" id="nearbyTop"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Détail station</span></div>
+          <div id="stationDetails"><div class="empty" style="padding:var(--s6) 0"><div class="empty-ico">🗺️</div><p>Cliquez sur un marqueur pour voir les prix.</p></div></div>
+        </div>
+      </div>
     </div>
-  </aside>
+  </section>
 
-  <!-- MAIN -->
-  <main class="main">
-
-    <!-- VUE CARTE -->
-    <section id="mapView" class="view active">
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Prix carburants <span style="color:var(--pri)">temps réel</span></h1>
-          <p class="page-sub">Consultez les prix à la pompe sur toute la France. Filtrez, comparez, signalez une erreur.</p>
-        </div>
-        <div class="acts">
-          <button class="btn btn-pri" id="locateBtn">📍 Ma position</button>
-          <button class="btn" id="seedBtn">🔄 Démo</button>
-        </div>
+  <!-- ── VUE COMPTE ─────────────────────────────────────── -->
+  <section id="authView" class="view">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Mon <span class="hl">compte</span></h1>
+        <p class="page-sub">Créez votre profil pour commenter les stations et proposer des corrections de prix.</p>
       </div>
-
-      <div class="kpis">
-        <div class="kpi"><div class="kpi-label">Stations</div><div class="kpi-value" id="stationCount">0</div><div class="kpi-sub">en France</div></div>
-        <div class="kpi"><div class="kpi-label">En attente</div><div class="kpi-value" id="pendingCount">0</div><div class="kpi-sub">contributions</div></div>
-        <div class="kpi"><div class="kpi-label">Commentaires</div><div class="kpi-value" id="commentCount">0</div><div class="kpi-sub">validés</div></div>
-      </div>
-
-      <div class="map-wrap">
-        <div class="card" style="padding:var(--s4)">
-          <div class="filters">
-            <div class="fld"><label>Carburant</label><select id="fuelFilter"></select></div>
-            <div class="fld"><label>Recherche</label><input id="searchFilter" placeholder="Paris, Total…"/></div>
-            <div class="fld"><label>Prix max €/L</label><input id="maxPriceFilter" type="number" step="0.001" placeholder="2.000"/></div>
-            <div class="fld"><label>Trier</label><select id="sortFilter"><option value="price">Prix ↑</option><option value="distance">Distance</option><option value="name">Nom A→Z</option></select></div>
-          </div>
-          <div id="map"></div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:var(--s5)">
-          <div class="card">
-            <div class="card-head">
-              <span class="card-title">🏆 Top 3 France</span>
-              <span class="badge badge-pri" id="nationalFuelBadge">SP95-E10</span>
-            </div>
-            <div class="rank-list" id="nationalTop"></div>
-          </div>
-          <div class="card">
-            <div class="card-head">
-              <span class="card-title">📍 Top 3 proxi</span>
-              <span class="badge badge-acc">Autour de vous</span>
-            </div>
-            <div class="rank-list" id="nearbyTop"></div>
-          </div>
-          <div class="card">
-            <div class="card-head"><span class="card-title">Station</span></div>
-            <div id="stationDetails" style="color:var(--tx1);font-size:var(--ts)">Cliquez un marqueur sur la carte.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- VUE COMPTE -->
-    <section id="authView" class="view">
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Mon <span style="color:var(--pri)">compte</span></h1>
-          <p class="page-sub">Créez votre profil pour commenter et proposer des corrections.</p>
-        </div>
-      </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-head"><span class="card-title">Créer un compte</span><span class="badge badge-pri">Démo</span></div>
-          <form id="registerForm" class="form-grid">
-            <div class="fld"><label>Nom</label><input name="name" required placeholder="Camille"/></div>
-            <div class="fld"><label>Email</label><input name="email" type="email" required placeholder="camille@email.fr"/></div>
-            <div class="fld"><label>Mot de passe</label><input name="password" type="password" required placeholder="········"/></div>
-            <div class="fld"><label>Carburant préféré</label><select name="preferredFuel" id="profileFuelSelect"></select></div>
-            <button class="btn btn-pri" type="submit">Créer le compte ✓</button>
-          </form>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">Session</span></div>
-          <div id="sessionCard" class="profile-card"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- VUE COMMUNAUTE -->
-    <section id="communityView" class="view">
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Comm<span style="color:var(--pri)">unauté</span></h1>
-          <p class="page-sub">Commentez, corrigez les prix. Chaque contribution est validée par un admin.</p>
-        </div>
-      </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-head"><span class="card-title">💬 Commenter</span><span class="badge badge-warn">Modéré</span></div>
-          <form id="commentForm" class="form-grid">
-            <div class="fld"><label>Station</label><select id="commentStation"></select></div>
-            <div class="fld"><label>Commentaire</label><textarea id="commentText" placeholder="Prix corrects ce matin, pompe propre…"></textarea></div>
-            <button class="btn btn-pri" type="submit">Envoyer →</button>
-          </form>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">✏️ Corriger un prix</span><span class="badge badge-warn">Modéré</span></div>
-          <form id="priceProposalForm" class="form-grid">
-            <div class="fld"><label>Station</label><select id="proposalStation"></select></div>
-            <div class="fld"><label>Carburant</label><select id="proposalFuel"></select></div>
-            <div class="fld"><label>Nouveau prix (€/L)</label><input id="proposalPrice" type="number" step="0.001" placeholder="1.739"/></div>
-            <div class="fld"><label>Justification</label><textarea id="proposalReason" placeholder="Constaté à la pompe ce soir…"></textarea></div>
-            <button class="btn btn-pri" type="submit">Proposer →</button>
-          </form>
-        </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Créer un compte</span><span class="badge bg-pri">Démo</span></div>
+        <form id="registerForm" class="form-grid">
+          <div class="fld"><label>Prénom</label><input name="name" required placeholder="Camille"/></div>
+          <div class="fld"><label>Email</label><input name="email" type="email" required placeholder="camille@email.fr"/></div>
+          <div class="fld"><label>Mot de passe</label><input name="password" type="password" required placeholder="········"/></div>
+          <div class="fld"><label>Carburant préféré</label><select name="preferredFuel" id="profileFuelSelect"></select></div>
+          <button class="btn btn-pri" type="submit">Créer mon compte →</button>
+        </form>
       </div>
       <div class="card">
-        <div class="card-head"><span class="card-title">Commentaires validés</span><span class="card-hint" id="commCount2">—</span></div>
-        <div class="comment-list" id="approvedComments"></div>
+        <div class="card-head"><span class="card-title">Session active</span></div>
+        <div id="sessionCard" class="profile-card"></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- VUE ADMIN -->
-    <section id="adminView" class="view">
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Dashboard <span style="color:var(--pri)">Admin</span></h1>
-          <p class="page-sub">Modérez les contributions. Chaque approbation met la carte à jour instantanément.</p>
-        </div>
+  <!-- ── VUE COMMUNAUTÉ ─────────────────────────────────── -->
+  <section id="communityView" class="view">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Comm<span class="hl">unauté</span></h1>
+        <p class="page-sub">Commentez une station ou signalez un prix incorrect. Chaque contribution passe en modération avant d'être publiée.</p>
       </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-head"><span class="card-title">File de modération</span><span class="badge badge-warn" id="queueCount">0</span></div>
-          <div id="adminQueue" style="display:flex;flex-direction:column;gap:var(--s3)"></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">Journal d'activité</span></div>
-          <div id="activityLog" style="display:flex;flex-direction:column;gap:var(--s2)"></div>
-        </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-title">💬 Commenter</span><span class="badge bg-warn">Modéré</span></div>
+        <form id="commentForm" class="form-grid">
+          <div class="fld"><label>Station</label><select id="commentStation"></select></div>
+          <div class="fld"><label>Votre commentaire</label><textarea id="commentText" placeholder="Prix corrects ce matin, pompe rapide…"></textarea></div>
+          <button class="btn btn-pri" type="submit">Envoyer en modération →</button>
+        </form>
       </div>
-    </section>
+      <div class="card">
+        <div class="card-head"><span class="card-title">✏️ Corriger un prix</span><span class="badge bg-warn">Modéré</span></div>
+        <form id="priceProposalForm" class="form-grid">
+          <div class="fld"><label>Station</label><select id="proposalStation"></select></div>
+          <div class="fld"><label>Carburant</label><select id="proposalFuel"></select></div>
+          <div class="fld"><label>Nouveau prix (€/L)</label><input id="proposalPrice" type="number" step="0.001" placeholder="1.739"/></div>
+          <div class="fld"><label>Justification</label><textarea id="proposalReason" placeholder="Constaté à la pompe à 18h30…"></textarea></div>
+          <button class="btn btn-pri" type="submit">Proposer la correction →</button>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Commentaires validés</span><span class="card-hint" id="commCount2">—</span></div>
+      <div class="comment-list" id="approvedComments"></div>
+    </div>
+  </section>
 
-    <div style="font-size:.7rem;color:var(--tx2);padding:var(--s3) 0;border-top:1px solid var(--div);margin-top:auto">CrazyFuel © 2026 — Données démo. Connecter data.gouv.fr pour les prix en temps réel.</div>
-  </main>
+  <!-- ── VUE ADMIN ──────────────────────────────────────── -->
+  <section id="adminView" class="view">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard <span class="hl">Admin</span></h1>
+        <p class="page-sub">Modérez les contributions de la communauté. Chaque approbation met la carte à jour instantanément.</p>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-title">File de modération</span><span class="badge bg-warn" id="queueCount">0</span></div>
+        <div id="adminQueue" style="display:flex;flex-direction:column;gap:var(--s3)"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Journal d'activité</span></div>
+        <div id="activityLog" style="display:flex;flex-direction:column;gap:var(--s2)"></div>
+      </div>
+    </div>
+  </section>
+
+  <div style="font-size:.68rem;color:var(--tx2);padding:var(--s3) 0;border-top:1px solid var(--div);margin-top:auto;text-align:center">CrazyFuel © 2026 — Données démo · <a href="https://www.data.gouv.fr/fr/datasets/prix-des-carburants-en-france-flux-instantane-v2/" target="_blank" rel="noopener" style="color:var(--pri)">Connecter data.gouv.fr</a> pour les prix en temps réel.</div>
+</main>
 </div>
 
-<!-- MOBILE NAV -->
+<!-- ══ MOBILE NAV ════════════════════════════════════════ -->
 <nav class="mob-nav">
   <button class="mob-btn active" data-view="mapView"><span class="mico">🗺️</span><span>Carte</span></button>
   <button class="mob-btn" data-view="authView"><span class="mico">👤</span><span>Compte</span></button>
-  <button class="mob-btn" data-view="communityView"><span class="mico">💬</span><span>Communauté</span></button>
+  <button class="mob-btn" data-view="communityView"><span class="mico">💬</span><span>Comm.</span></button>
   <button class="mob-btn" data-view="adminView"><span class="mico">🛡️</span><span>Admin</span></button>
 </nav>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
 const FUELS=['Gazole','SP95','SP95-E10','SP98','GPLc','E85'];
-const FUEL_COLORS={Gazole:'#2563eb',SP95:'#16a34a','SP95-E10':'#15803d',SP98:'#7c3aed',GPLc:'#0891b2',E85:'#ca8a04'};
+const FC={Gazole:'#2563eb',SP95:'#16a34a','SP95-E10':'#059669',SP98:'#7c3aed',GPLc:'#0891b2',E85:'#ca8a04'};
+const FCLS={Gazole:'fc-g',SP95:'fc-95','SP95-E10':'fc-e10',SP98:'fc-98',GPLc:'fc-gpl',E85:'fc-e85'};
 
-const S={
-  user:null,fuel:'SP95-E10',pos:{lat:46.60,lng:1.88},
-  stations:[],comments:[],proposals:[],activity:[],
-  selId:null,map:null,markers:[]
-};
+const S={user:null,fuel:'SP95-E10',pos:{lat:46.60,lng:1.88},stations:[],comments:[],proposals:[],activity:[],selId:null,map:null,markers:[]};
 
-const DEMO_STATIONS=[
+const DEMO=[
   {id:1,name:'TotalEnergies Rivoli',city:'Paris',lat:48.855,lng:2.357,addr:'12 Rue de Rivoli',prices:{Gazole:1.702,SP95:1.829,'SP95-E10':1.781,SP98:1.902,GPLc:0.992,E85:0.869}},
   {id:2,name:'E.Leclerc Frouard',city:'Frouard',lat:48.761,lng:6.132,addr:'Zone commerciale Grand Air',prices:{Gazole:1.621,SP95:1.748,'SP95-E10':1.709,SP98:1.832,GPLc:0.954,E85:0.792}},
   {id:3,name:'Carrefour Mérignac',city:'Mérignac',lat:44.842,lng:-0.667,addr:'Avenue de la Somme',prices:{Gazole:1.644,SP95:1.765,'SP95-E10':1.721,SP98:1.845,GPLc:0.979,E85:0.801}},
-  {id:4,name:'Intermarché Brest',city:'Brest',lat:48.390,lng:-4.486,addr:'Boulevard de Plymouth',prices:{Gazole:1.633,SP95:1.759,'SP95-E10':1.714,SP98:1.838,GPLc:0.966,E85:0.795}},
+  {id:4,name:'Intermarché Brest',city:'Brest',lat:48.390,lng:-4.486,addr:'Bld de Plymouth',prices:{Gazole:1.633,SP95:1.759,'SP95-E10':1.714,SP98:1.838,GPLc:0.966,E85:0.795}},
   {id:5,name:'Avia Nice Ouest',city:'Nice',lat:43.665,lng:7.215,addr:'Route de Grenoble',prices:{Gazole:1.712,SP95:1.852,'SP95-E10':1.807,SP98:1.931,GPLc:1.005,E85:0.884}},
   {id:6,name:'Auchan Noyelles',city:'Noyelles-Godault',lat:50.417,lng:2.995,addr:'Centre commercial',prices:{Gazole:1.614,SP95:1.739,'SP95-E10':1.698,SP98:1.821,GPLc:0.949,E85:0.785}},
-  {id:7,name:'Super U Nantes Erdre',city:'Nantes',lat:47.249,lng:-1.506,addr:'Route de Saint-Joseph',prices:{Gazole:1.648,SP95:1.771,'SP95-E10':1.725,SP98:1.849,GPLc:0.973,E85:0.806}},
-  {id:8,name:'Casino Lyon Sud',city:'Lyon',lat:45.721,lng:4.824,addr:'Avenue du Gén. de Gaulle',prices:{Gazole:1.661,SP95:1.788,'SP95-E10':1.734,SP98:1.861,GPLc:0.981,E85:0.814}},
+  {id:7,name:'Super U Nantes',city:'Nantes',lat:47.249,lng:-1.506,addr:'Route de Saint-Joseph',prices:{Gazole:1.648,SP95:1.771,'SP95-E10':1.725,SP98:1.849,GPLc:0.973,E85:0.806}},
+  {id:8,name:'Casino Lyon Sud',city:'Lyon',lat:45.721,lng:4.824,addr:'Av. du Gén. de Gaulle',prices:{Gazole:1.661,SP95:1.788,'SP95-E10':1.734,SP98:1.861,GPLc:0.981,E85:0.814}},
   {id:9,name:'Leclerc Montpellier',city:'Montpellier',lat:43.612,lng:3.877,addr:'Route de Carnon',prices:{Gazole:1.629,SP95:1.753,'SP95-E10':1.711,SP98:1.834,GPLc:0.961,E85:0.799}},
   {id:10,name:'U Express Lille Centre',city:'Lille',lat:50.633,lng:3.059,addr:'Rue Nationale',prices:{Gazole:1.658,SP95:1.781,'SP95-E10':1.736,SP98:1.858,GPLc:0.977,E85:0.809}}
 ];
 
-function toast(msg,d=2500){
+function toast(msg,d=2600){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),d);
 }
 
-function km(a,b,c,d){const R=6371,dLa=(c-a)*Math.PI/180,dLo=(d-b)*Math.PI/180,x=Math.sin(dLa/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLo/2)**2;return+(2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))).toFixed(1);}
-
-function fuelClass(f){return{Gazole:'gaz',SP95:'sp95','SP95-E10':'e10',SP98:'sp98',GPLc:'gpl',E85:'e85'}[f]||'gaz';}
-
-function resetDemo(){
-  S.stations=JSON.parse(JSON.stringify(DEMO_STATIONS));
-  S.comments=[
-    {id:1,stId:2,author:'Lucas',text:'Prix conformes ce matin, accès facile.',status:'approved',at:Date.now()},
-    {id:2,stId:1,author:'Nora',text:'Beaucoup de monde à midi, mais affichage correct.',status:'pending',at:Date.now()}
-  ];
-  S.proposals=[{id:1,stId:6,fuel:'SP95-E10',price:1.689,reason:'Photo ticket 18h20',author:'Mathis',status:'pending',at:Date.now()}];
-  S.activity=[{id:1,msg:'Démo rechargée',at:new Date().toLocaleTimeString('fr-FR')}];
-  S.selId=null;
-  renderAll();
-  toast('✅ Données démo rechargées');
+function km(a,b,c,d){
+  const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;
+  const z=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;
+  return+(2*R*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))).toFixed(1);
 }
 
-function selects(){
+function resetDemo(){
+  S.stations=JSON.parse(JSON.stringify(DEMO));
+  S.comments=[
+    {id:1,stId:2,author:'Lucas',text:'Prix conformes ce matin, accès facile et rapide.',status:'approved',at:Date.now()-3e5},
+    {id:2,stId:1,author:'Nora',text:'Beaucoup de monde à midi, mais prix affichés corrects.',status:'pending',at:Date.now()}
+  ];
+  S.proposals=[{id:1,stId:6,fuel:'SP95-E10',price:1.689,reason:'Photo ticket à 18h20 ce soir.',author:'Mathis',status:'pending',at:Date.now()}];
+  S.activity=[{id:1,msg:'✅ Base de démo rechargée',at:now()}];
+  S.selId=null;
+  renderAll();
+  toast('✅ Démo rechargée');
+}
+
+function now(){return new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
+function pushLog(msg){S.activity.unshift({id:Date.now(),msg,at:now()});S.activity=S.activity.slice(0,20);}
+
+function hydrate(){
   const fH=FUELS.map(f=>`<option value="${f}">${f}</option>`).join('');
   ['fuelFilter','profileFuelSelect','proposalFuel'].forEach(id=>{const e=document.getElementById(id);if(e){e.innerHTML=fH;e.value=S.fuel;}});
   const stH=S.stations.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
@@ -592,13 +636,14 @@ function filtered(){
   const q=(document.getElementById('searchFilter')?.value||'').toLowerCase();
   const mx=parseFloat(document.getElementById('maxPriceFilter')?.value||'999');
   const so=document.getElementById('sortFilter')?.value||'price';
-  return S.stations.filter(s=>(q?`${s.name} ${s.city}`.toLowerCase().includes(q):true)&&s.prices[f]<=mx)
+  return S.stations
+    .filter(s=>(q?`${s.name} ${s.city}`.toLowerCase().includes(q):true)&&s.prices[f]<=mx)
     .sort((a,b)=>so==='name'?a.name.localeCompare(b.name):so==='distance'?km(S.pos.lat,S.pos.lng,a.lat,a.lng)-km(S.pos.lat,S.pos.lng,b.lat,b.lng):a.prices[f]-b.prices[f]);
 }
 
-function makeIcon(color){
-  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='30' height='38' viewBox='0 0 30 38'><path d='M15 0C7 0 0 7 0 15c0 11 15 23 15 23S30 26 30 15C30 7 23 0 15 0z' fill='${color}'/><circle cx='15' cy='15' r='6' fill='white' opacity='.9'/></svg>`;
-  return L.divIcon({html:svg,className:'',iconSize:[30,38],iconAnchor:[15,38],popupAnchor:[0,-38]});
+function mkIcon(color){
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='40' viewBox='0 0 32 40'><path d='M16 0C7.2 0 0 7.2 0 16c0 11.6 16 24 16 24S32 27.6 32 16C32 7.2 24.8 0 16 0z' fill='${color}'/><circle cx='16' cy='16' r='7' fill='white' opacity='.92'/><circle cx='16' cy='16' r='4' fill='${color}' opacity='.6'/></svg>`;
+  return L.divIcon({html:svg,className:'',iconSize:[32,40],iconAnchor:[16,40],popupAnchor:[0,-40]});
 }
 
 function renderMap(){
@@ -608,91 +653,94 @@ function renderMap(){
   }
   S.markers.forEach(m=>m.remove());S.markers=[];
   const f=document.getElementById('fuelFilter')?.value||S.fuel;
-  const color=FUEL_COLORS[f]||'#0e737c';
+  const c=FC[f]||'#0a7880';
   filtered().forEach(st=>{
-    const mk=L.marker([st.lat,st.lng],{icon:makeIcon(color)}).addTo(S.map);
-    mk.bindPopup(`<strong>${st.name}</strong><br><span style='color:#666'>${st.city}</span><br>${f}: <strong style='color:${color}'>${st.prices[f].toFixed(3)} €/L</strong>`);
+    const mk=L.marker([st.lat,st.lng],{icon:mkIcon(c)}).addTo(S.map);
+    mk.bindPopup(`<strong style='font-size:14px'>${st.name}</strong><br><span style='color:#666;font-size:12px'>${st.city}</span><br><span style='color:${c};font-size:15px;font-weight:800'>${st.prices[f].toFixed(3)} €/L</span>`);
     mk.on('click',()=>{S.selId=st.id;renderDetail();});
     S.markers.push(mk);
   });
 }
 
-function rankCard(st,f,idx,dist){
-  const cls=['','r2','r3'][idx]||'';
-  const d=dist?`${km(S.pos.lat,S.pos.lng,st.lat,st.lng)} km`:'';
+function rankHTML(st,f,idx,showDist){
+  const cls=['r1','r2','r3'][idx]||'r3';
+  const d=showDist?km(S.pos.lat,S.pos.lng,st.lat,st.lng)+' km':'';
   return `<div class="rank-item"><div class="rank-num ${cls}">${idx+1}</div><div class="rank-info"><div class="rank-name">${st.name}</div><div class="rank-city">${st.city}${d?' · '+d:''}</div></div><div class="rank-price">${st.prices[f].toFixed(3)} €</div></div>`;
 }
 
 function renderRankings(){
   const f=S.fuel;
   document.getElementById('sidebarFuel').textContent=f;
-  document.getElementById('nationalFuelBadge').textContent=f;
+  document.getElementById('nFuelBadge').textContent=f;
   const nat=[...S.stations].sort((a,b)=>a.prices[f]-b.prices[f]).slice(0,3);
-  const near=[...S.stations].sort((a,b)=>km(S.pos.lat,S.pos.lng,a.lat,a.lng)-km(S.pos.lat,S.pos.lng,b.lat,b.lng)).slice(0,6).sort((a,b)=>a.prices[f]-b.prices[f]).slice(0,3);
-  document.getElementById('nationalTop').innerHTML=nat.map((s,i)=>rankCard(s,f,i,false)).join('');
-  document.getElementById('nearbyTop').innerHTML=near.map((s,i)=>rankCard(s,f,i,true)).join('');
+  const near=[...S.stations].sort((a,b)=>km(S.pos.lat,S.pos.lng,a.lat,a.lng)-km(S.pos.lat,S.pos.lng,b.lat,b.lng)).slice(0,8).sort((a,b)=>a.prices[f]-b.prices[f]).slice(0,3);
+  document.getElementById('nationalTop').innerHTML=nat.map((s,i)=>rankHTML(s,f,i,false)).join('');
+  document.getElementById('nearbyTop').innerHTML=near.map((s,i)=>rankHTML(s,f,i,true)).join('');
 }
 
 function renderDetail(){
   const st=S.stations.find(s=>s.id===S.selId);
   const box=document.getElementById('stationDetails');
-  if(!st){box.innerHTML='<span style="color:var(--tx1)">Cliquez un marqueur sur la carte.</span>';return;}
+  if(!st){box.innerHTML='<div class="empty" style="padding:var(--s5) 0"><div class="empty-ico">🗺️</div><p>Cliquez un marqueur sur la carte.</p></div>';return;}
+  const vals=Object.values(st.prices);
+  const minP=Math.min(...vals),maxP=Math.max(...vals);
   const comms=S.comments.filter(c=>c.stId===st.id&&c.status==='approved');
-  const minP=Math.min(...Object.values(st.prices));
-  box.innerHTML=`<div style="margin-bottom:var(--s3)">
-    <div style="font-weight:800;font-size:var(--tl);font-family:var(--fdis)">${st.name}</div>
-    <div style="font-size:var(--ts);color:var(--tx1)">${st.city} · ${st.addr}</div>
-  </div>
-  <div class="price-grid">${FUELS.map(f=>`<div class="price-chip${st.prices[f]===minP?' cheapest':''}"><div class="f-name">${f}</div><div class="f-val" style="color:${FUEL_COLORS[f]}">${st.prices[f].toFixed(3)} €</div></div>`).join('')}</div>
-  ${comms.length?`<div style="margin-top:var(--s4);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tx2);margin-bottom:var(--s2)">Commentaires (${comms.length})</div>${comms.map(c=>`<div style="padding:.5rem .75rem;background:var(--sur2);border-radius:var(--r3);font-size:var(--ts);margin-bottom:var(--s2)"><strong>${c.author}</strong> — ${c.text}</div>`).join('')}`:''}`;
+  box.innerHTML=`
+    <div style="margin-bottom:var(--s4)">
+      <div style="font-family:var(--fdis);font-size:var(--tl);font-weight:800;letter-spacing:-.02em">${st.name}</div>
+      <div style="font-size:var(--ts);color:var(--tx1);margin-top:2px">${st.city} · ${st.addr}</div>
+    </div>
+    <div class="price-grid">${FUELS.map(f=>`<div class="price-chip${st.prices[f]===minP?' best':st.prices[f]===maxP?' worst':''}"><div class="f-name">${f}</div><div class="f-val" style="color:${FC[f]}">${st.prices[f].toFixed(3)} €</div></div>`).join('')}</div>
+    ${comms.length?`<div style="margin-top:var(--s4)">
+      <div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tx2);margin-bottom:var(--s2)">Commentaires (${comms.length})</div>
+      ${comms.map(c=>`<div style="padding:.5rem .75rem;background:var(--sur2);border-radius:var(--r3);font-size:var(--ts);margin-bottom:var(--s2);border:1px solid var(--bor)"><strong>${c.author}</strong> — ${c.text}</div>`).join('')}
+    </div>`:''}`;  
 }
 
 function renderSession(){
   const box=document.getElementById('sessionCard');
   if(!S.user){
-    box.innerHTML='<div class="profile-row"><span class="profile-key">Statut</span><span class="profile-val" style="color:var(--tx1)">Invité</span></div><div style="font-size:var(--ts);color:var(--tx1);margin-top:var(--s3)">Créez un compte pour commenter et proposer des corrections.</div>';
+    box.innerHTML=`<div class="empty" style="padding:var(--s5) 0"><div class="empty-ico">👤</div><h3>Invité</h3><p>Créez un compte pour commenter et proposer des corrections.</p></div>`;
     return;
   }
   box.innerHTML=`
-    <div class="profile-row"><span class="profile-key">Nom</span><span class="profile-val">${S.user.name}</span></div>
+    <div class="profile-row"><span class="profile-key">Prénom</span><span class="profile-val">${S.user.name}</span></div>
     <div class="profile-row"><span class="profile-key">Email</span><span class="profile-val">${S.user.email}</span></div>
-    <div class="profile-row"><span class="profile-key">Carburant</span><span class="profile-val"><span class="fuel-chip ${fuelClass(S.user.fuel)}">${S.user.fuel}</span></span></div>
-    <div class="profile-row"><span class="profile-key">Rôle</span><span class="profile-val"><span class="badge badge-ok">Membre</span></span></div>`;
+    <div class="profile-row"><span class="profile-key">Carburant</span><span class="profile-val"><span class="fuel-chip ${FCLS[S.user.fuel]||''} ">${S.user.fuel}</span></span></div>
+    <div class="profile-row"><span class="profile-key">Rôle</span><span class="profile-val"><span class="badge bg-ok">Membre</span></span></div>`;
 }
 
 function renderComments(){
-  const approved=S.comments.filter(c=>c.status==='approved').sort((a,b)=>b.at-a.at);
-  const el=document.getElementById('approvedComments');
-  const c2=document.getElementById('commCount2');
-  if(c2)c2.textContent=approved.length+' publiés';
-  el.innerHTML=approved.map(c=>{
+  const ap=S.comments.filter(c=>c.status==='approved').sort((a,b)=>b.at-a.at);
+  const c2=document.getElementById('commCount2'); if(c2)c2.textContent=ap.length+' publiés';
+  document.getElementById('approvedComments').innerHTML=ap.map(c=>{
     const st=S.stations.find(s=>s.id===c.stId);
     return `<div class="comment"><div class="comment-top"><span class="comment-author">${c.author}</span><span class="comment-station">${st?.name||''}</span></div><div class="comment-body">${c.text}</div></div>`;
-  }).join('')||'<div style="color:var(--tx1);font-size:var(--ts)">Aucun commentaire validé pour le moment.</div>';
+  }).join('')||`<div class="empty" style="padding:var(--s8) 0"><div class="empty-ico">💬</div><h3>Aucun commentaire</h3><p>Soyez le premier à commenter une station.</p></div>`;
 }
 
 function renderAdmin(){
-  const queue=[
+  const q=[
     ...S.comments.filter(c=>c.status==='pending').map(c=>({type:'comment',...c})),
     ...S.proposals.filter(p=>p.status==='pending').map(p=>({type:'proposal',...p}))
   ].sort((a,b)=>b.at-a.at);
-  const qc=document.getElementById('queueCount'); if(qc)qc.textContent=queue.length;
-  document.getElementById('adminQueue').innerHTML=queue.map(item=>{
-    const st=S.stations.find(s=>s.id===(item.stId||item.stId));
+  const qc=document.getElementById('queueCount'); if(qc)qc.textContent=q.length;
+  document.getElementById('adminQueue').innerHTML=q.map(item=>{
+    const st=S.stations.find(s=>s.id===item.stId);
     return `<div class="admin-item">
-      <div style="display:flex;gap:var(--s2);align-items:center;margin-bottom:var(--s2)">
-        <span class="badge ${item.type==='comment'?'badge-pri':'badge-acc'}">${item.type==='comment'?'Commentaire':'Correction prix'}</span>
-        <span class="badge badge-warn">En attente</span>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:var(--s2)">
+        <span class="badge ${item.type==='comment'?'bg-pri':'bg-acc'}">${item.type==='comment'?'Commentaire':'Correction prix'}</span>
+        <span class="badge bg-warn">En attente</span>
       </div>
-      <h3>${st?.name||''} — ${st?.city||''}</h3>
-      <div style="font-size:.72rem;color:var(--tx1);margin-bottom:var(--s2)">Par ${item.author}</div>
-      <div style="font-size:var(--ts);padding:var(--s2) var(--s3);background:var(--bg);border-radius:var(--r3);line-height:1.5">${item.type==='comment'?item.text:`<span class="fuel-chip ${fuelClass(item.fuel)}">${item.fuel}</span> → <strong>${item.price?.toFixed(3)} €/L</strong><br><span style="font-size:.72rem;color:var(--tx1)">${item.reason}</span>`}</div>
+      <div style="font-weight:700;font-size:var(--ts);margin-bottom:2px">${st?.name||'?'} — ${st?.city||''}</div>
+      <div style="font-size:.7rem;color:var(--tx2);margin-bottom:var(--s2)">Par <strong>${item.author}</strong></div>
+      <div style="font-size:var(--ts);padding:var(--s2) var(--s3);background:var(--bg);border-radius:var(--r3);border:1px solid var(--bor);line-height:1.55">${item.type==='comment'?item.text:`<span class="fuel-chip ${FCLS[item.fuel]||''}">${item.fuel}</span> → <strong style="color:var(--ok)">${item.price?.toFixed(3)} €/L</strong><br><span style="font-size:.72rem;color:var(--tx1);margin-top:4px;display:block">${item.reason}</span>`}</div>
       <div class="admin-btns">
-        <button class="btn btn-pri" onclick="approv('${item.type}',${item.id})">✓ Approuver</button>
-        <button class="btn" style="color:var(--err);border-color:color-mix(in oklch,var(--err) 25%,var(--bor))" onclick="rejec('${item.type}',${item.id})">✕ Refuser</button>
+        <button class="btn btn-sm btn-pri" onclick="approv('${item.type}',${item.id})">✓ Approuver</button>
+        <button class="btn btn-sm btn-err" onclick="rejec('${item.type}',${item.id})">✕ Refuser</button>
       </div>
     </div>`;
-  }).join('')||'<div style="color:var(--tx1);font-size:var(--ts)">✅ Aucun élément en attente.</div>';
+  }).join('')||`<div class="empty" style="padding:var(--s8) 0"><div class="empty-ico">✅</div><h3>File vide</h3><p>Aucune contribution en attente de validation.</p></div>`;
   document.getElementById('activityLog').innerHTML=S.activity.map(l=>`<div class="log-item"><div class="log-dot"></div><div class="log-msg">${l.msg}</div><div class="log-time">${l.at}</div></div>`).join('');
 }
 
@@ -702,107 +750,98 @@ function counters(){
   document.getElementById('commentCount').textContent=S.comments.filter(c=>c.status==='approved').length;
 }
 
-function pushLog(msg){S.activity.unshift({id:Date.now(),msg,at:new Date().toLocaleTimeString('fr-FR')});S.activity=S.activity.slice(0,20);}
+function renderAll(){hydrate();counters();renderMap();renderRankings();renderDetail();renderSession();renderComments();renderAdmin();}
 
 function approv(type,id){
-  if(type==='comment'){const c=S.comments.find(x=>x.id===id);if(!c)return;c.status='approved';pushLog(`✅ Commentaire approuvé — ${S.stations.find(s=>s.id===c.stId)?.name}`);toast('Commentaire approuvé !');}
+  if(type==='comment'){const c=S.comments.find(x=>x.id===id);if(!c)return;c.status='approved';pushLog(`✅ Commentaire approuvé — ${S.stations.find(s=>s.id===c.stId)?.name}`);toast('Commentaire publié !');}
   else{const p=S.proposals.find(x=>x.id===id);if(!p)return;p.status='approved';const st=S.stations.find(s=>s.id===p.stId);if(st)st.prices[p.fuel]=p.price;pushLog(`⛽ Prix ${p.fuel} mis à jour — ${st?.name}`);toast('Prix mis à jour sur la carte !');}
   renderAll();
 }
 function rejec(type,id){
-  if(type==='comment'){const c=S.comments.find(x=>x.id===id);if(!c)return;c.status='rejected';pushLog(`❌ Commentaire refusé`);}
-  else{const p=S.proposals.find(x=>x.id===id);if(!p)return;p.status='rejected';pushLog(`❌ Correction refusée`);}
+  if(type==='comment'){const c=S.comments.find(x=>x.id===id);if(!c)return;c.status='rejected';pushLog('❌ Commentaire refusé');}
+  else{const p=S.proposals.find(x=>x.id===id);if(!p)return;p.status='rejected';pushLog('❌ Correction refusée');}
   toast('Contribution refusée.');renderAll();
 }
 window.approv=approv;window.rejec=rejec;
 
-function renderAll(){selects();counters();renderMap();renderRankings();renderDetail();renderSession();renderComments();renderAdmin();}
-
-// — VIEW SWITCH
+// View switch
 function switchView(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('[data-view]').forEach(b=>{
-    b.classList.toggle('active',b.dataset.view===id);
-  });
-  if(id==='mapView'&&S.map)setTimeout(()=>S.map.invalidateSize(),60);
+  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
+  if(id==='mapView'&&S.map)setTimeout(()=>S.map.invalidateSize(),80);
 }
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
 
-// — FILTERS
+// Filters
 ['fuelFilter','searchFilter','maxPriceFilter','sortFilter'].forEach(id=>{
-  const e=document.getElementById(id);if(!e)return;
-  e.addEventListener('input',()=>{renderMap();renderDetail();});
+  document.getElementById(id)?.addEventListener('input',()=>{renderMap();renderDetail();});
 });
 document.getElementById('fuelFilter')?.addEventListener('change',()=>renderRankings());
-
-// — PROFILE FUEL
 document.getElementById('profileFuelSelect')?.addEventListener('change',e=>{
   S.fuel=e.target.value;if(S.user)S.user.fuel=e.target.value;
-  document.getElementById('sidebarFuel').textContent=S.fuel;
-  renderRankings();
+  document.getElementById('sidebarFuel').textContent=S.fuel;renderRankings();
 });
 
-// — REGISTER
+// Register
 document.getElementById('registerForm').addEventListener('submit',e=>{
   e.preventDefault();const fd=new FormData(e.target);
   S.user={name:fd.get('name'),email:fd.get('email'),fuel:fd.get('preferredFuel')};
-  S.fuel=S.user.fuel;
-  pushLog(`👤 Nouveau compte : ${S.user.name}`);
-  e.target.reset();toast(`Bienvenue, ${S.user.name} ! ✨`);
-  renderAll();
+  S.fuel=S.user.fuel;pushLog(`👤 Nouveau compte : ${S.user.name}`);
+  e.target.reset();toast(`Bienvenue, ${S.user.name} ! ✨`);renderAll();
 });
 
-// — COMMENT
+// Comment
 document.getElementById('commentForm').addEventListener('submit',e=>{
   e.preventDefault();
   if(!S.user)return toast('⚠️ Créez un compte d'abord.');
   const txt=document.getElementById('commentText').value.trim();if(!txt)return;
-  S.comments.unshift({id:Date.now(),stId:Number(document.getElementById('commentStation').value),author:S.user.name,text:txt,status:'pending',at:Date.now()});
+  S.comments.unshift({id:Date.now(),stId:+document.getElementById('commentStation').value,author:S.user.name,text:txt,status:'pending',at:Date.now()});
   pushLog(`💬 Commentaire soumis par ${S.user.name}`);
   document.getElementById('commentText').value='';
-  toast('Commentaire envoyé en modération !');
-  renderAll();
+  toast('Commentaire envoyé en modération !');renderAll();
 });
 
-// — PRICE PROPOSAL
+// Price proposal
 document.getElementById('priceProposalForm').addEventListener('submit',e=>{
   e.preventDefault();
   if(!S.user)return toast('⚠️ Créez un compte d'abord.');
   const pr=parseFloat(document.getElementById('proposalPrice').value);
   const re=document.getElementById('proposalReason').value.trim();
   if(!pr||!re)return;
-  S.proposals.unshift({id:Date.now(),stId:Number(document.getElementById('proposalStation').value),fuel:document.getElementById('proposalFuel').value,price:pr,reason:re,author:S.user.name,status:'pending',at:Date.now()});
+  S.proposals.unshift({id:Date.now(),stId:+document.getElementById('proposalStation').value,fuel:document.getElementById('proposalFuel').value,price:pr,reason:re,author:S.user.name,status:'pending',at:Date.now()});
   pushLog(`✏️ Correction proposée par ${S.user.name}`);
-  e.target.reset();toast('Correction envoyée en modération !');
-  renderAll();
+  e.target.reset();toast('Correction envoyée en modération !');renderAll();
 });
 
-// — LOCATE
+// Locate
 document.getElementById('locateBtn').addEventListener('click',()=>{
   if(!navigator.geolocation)return toast('Géoloc non disponible.');
-  navigator.geolocation.getCurrentPosition(pos=>{
-    S.pos={lat:pos.coords.latitude,lng:pos.coords.longitude};
+  navigator.geolocation.getCurrentPosition(p=>{
+    S.pos={lat:p.coords.latitude,lng:p.coords.longitude};
     if(S.map)S.map.setView([S.pos.lat,S.pos.lng],11);
-    pushLog('📍 Position mise à jour');
-    toast('📍 Position détectée !');renderRankings();
+    pushLog('📍 Position mise à jour');toast('📍 Position détectée !');renderRankings();
   },()=>toast('Position indisponible.'));
 });
 
-// — DEMO RESET
 document.getElementById('seedBtn').addEventListener('click',resetDemo);
 
-// — iOS TOGGLE
+// iOS Theme toggle
 const chk=document.getElementById('themeChk');
 const html=document.documentElement;
-const dark=matchMedia('(prefers-color-scheme:dark)').matches;
-if(dark){html.setAttribute('data-theme','dark');chk.checked=true;}
-chk.addEventListener('change',()=>{
-  html.setAttribute('data-theme',chk.checked?'dark':'light');
+const emoji=document.getElementById('themeEmoji');
+const themeText=document.getElementById('themeText');
+function applyTheme(dark){
+  html.setAttribute('data-theme',dark?'dark':'light');
+  chk.checked=dark;
+  if(emoji)emoji.textContent=dark?'🌙':'☀️';
+  if(themeText)themeText.textContent=dark?'Mode sombre':'Mode clair';
   if(S.map)setTimeout(()=>S.map.invalidateSize(),200);
-});
+}
+const prefersDark=matchMedia('(prefers-color-scheme:dark)').matches;
+applyTheme(prefersDark);
+chk.addEventListener('change',()=>applyTheme(chk.checked));
 
-// — INIT
 resetDemo();
 </script>
 </body>
